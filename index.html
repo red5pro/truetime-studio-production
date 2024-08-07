@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Red5 - IBC Demo</title>
+		<link rel="stylesheet" href="style/main.css" />
+	</head>
+	<body>
+		<div id="app">
+			<div id="logo-holder">
+				<img class="logo-holder_img" src="assets/Red5.svg" alt="Red5" />
+				<span>Red5 IBC Demo Console</span>
+			</div>
+			<div id="console">
+				<div id="source-clips-container" class="console-section">
+					<div id="source-selector">
+						<p
+							class="source-selector_item source-selector_selected"
+							data-selection="sources"
+						>
+							Sources
+						</p>
+						<p class="source-selector_item" data-selection="clips">Clips</p>
+					</div>
+					<div id="source-video-container">
+						<p>mixer</p>
+					</div>
+				</div>
+				<div id="preview-container" class="console-section">
+					<p>Preview</p>
+					<div id="preview-video-container">
+						<div id="preview-video"></div>
+						<div id="preview-buttons-container">
+							<button id="preview-button_live" class="preview-button">
+								Go Live
+							</button>
+							<button id="publish-button_ad" class="preview-button">
+								Play Ad
+							</button>
+						</div>
+					</div>
+					<div id="live-video-container">
+						<div id="ad-info-container">
+							<p id="ad-info-container_header">Time Left</p>
+							<div id="ad-info-container_controls">
+								<div id="ad-info-container_time">00:00</div>
+								<button
+									id="ad-info-container_button"
+									class="ad-info-container_button"
+								>
+									Stop
+								</button>
+							</div>
+						</div>
+						<div id="live-video">
+							<div id="live-video_overlay">Live</div>
+							<div id="live-video_video">Video</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="https://unpkg.com/red5pro-webrtc-sdk@latest/red5pro-sdk.min.js"></script>
+		<script type="module" src="script/main.js"></script>
+	</body>
+</html>
