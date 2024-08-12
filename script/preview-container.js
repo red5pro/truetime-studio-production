@@ -23,7 +23,7 @@ NONINFRINGEMENT.   IN  NO  EVENT  SHALL INFRARED5, INC. BE LIABLE FOR ANY CLAIM,
 WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT  OF  OR  IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-/* global red5prosdk */
+/* global red5prosdk, Hls */
 const { WHEPClient } = red5prosdk;
 class PreviewContainer {
 	subscriber = null;
@@ -186,10 +186,19 @@ class PreviewContainer {
 	}
 
 	async updateClipPreview(app, streamFilename) {
+		const isHLS = streamFilename.includes(".m3u8");
 		const { host, protocol, port } = this.baseConfiguration;
 		const proto = protocol === "ws" ? "http" : "https";
 		const src = `${proto}://${host}:${port}/${app}/streams/${streamFilename}`;
-		this.previewVideoClipElement.src = src;
+		if (isHLS) {
+			const hls = new Hls({ debug: true, backBufferLength: 0 });
+			hls.attachMedia(this.previewVideoClipElement);
+			hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+				hls.loadSource(src);
+			});
+		} else {
+			this.previewVideoClipElement.src = src;
+		}
 	}
 }
 
