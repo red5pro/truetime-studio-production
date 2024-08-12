@@ -83,7 +83,60 @@ class PreviewContainer {
 		}
 	}
 
-	async preview(app, streamName, isLive) {
+	async preview(app, streamOrFileName, isLive) {
+		let complete = false;
+		this.previewVideoLiveElement.classList.toggle("hidden", !isLive);
+		this.previewVideoClipElement.classList.toggle("hidden", isLive);
+		if (isLive) {
+			await this.unpreviewClip();
+			complete = await this.updateLivePreview(app, streamOrFileName);
+		} else {
+			await this.unpreviewLive();
+			complete = await this.updateClipPreview(app, streamOrFileName);
+		}
+		this.previewState = {
+			app,
+			streamName: streamOrFileName,
+			isLive,
+		};
+		return complete;
+	}
+
+	async unpreview() {
+		if (this.previewState) {
+			const { app, streamName, isLive } = this.previewState;
+			if (isLive) {
+				await this.unpreviewLive();
+			} else {
+				await this.unpreviewClip();
+			}
+			this.previewState = null;
+		}
+	}
+
+	async unpreviewLive() {
+		if (this.subscriber) {
+			try {
+				await this.subscriber.unsubscribe();
+			} catch (e) {
+				console.warn(e);
+			}
+			this.subscriber = null;
+		}
+		// this.previewState = null;
+		return true;
+	}
+
+	async unpreviewClip() {
+		try {
+			this.previewVideoClipElement.stop();
+		} catch (e) {
+			console.warn(e);
+		}
+		this.previewVideoClipElement.src = "";
+	}
+
+	async updateLivePreview(app, streamName) {
 		if (this.subscriber) {
 			try {
 				this.subscriber.callServer("switchStreams", [
@@ -115,24 +168,14 @@ class PreviewContainer {
 				return false;
 			}
 		}
-		this.previewState = {
-			app,
-			streamName,
-			isLive,
-		};
 		return true;
 	}
 
-	async unpreview() {
-		if (this.subscriber) {
-			try {
-				await this.subscriber.unsubscribe();
-			} catch (e) {
-				console.warn(e);
-			}
-			this.subscriber = null;
-		}
-		this.previewState = null;
+	async updateClipPreview(app, streamFilename) {
+		const { host, protocol, port } = this.baseConfiguration;
+		const proto = protocol === "ws" ? "http" : "https";
+		const src = `${proto}://${host}:${port}/${app}/streams/${streamFilename}`;
+		this.previewVideoClipElement.src = src;
 	}
 }
 

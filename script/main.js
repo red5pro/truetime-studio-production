@@ -57,8 +57,13 @@ const previewContainer = new PreviewContainerImpl(
 	document.querySelector("#preview-button_ad"),
 );
 previewContainer.delegate = {
-	OnGoLive: ({ app, streamName, isLive }) => {},
-	OnPlayAd: () => {},
+	OnGoLive: ({ app, streamName, isLive }) => {
+		service.switchToStream(app, streamName, !isLive);
+	},
+	OnPlayAd: () => {
+		// TODO: Test
+		service.resume();
+	},
 };
 
 const sourceContainer = new SourceContainerImpl(
@@ -90,7 +95,7 @@ const startLiveStream = async () => {
 		await subscriber.subscribe();
 	} catch (error) {
 		console.error(error);
-		alert(`Failed to start live stream: ${error.message}`);
+		alert(`Failed to start live stream: ${error.message || error}`);
 	}
 };
 

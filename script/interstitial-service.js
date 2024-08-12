@@ -37,7 +37,7 @@ const switchPayload = {
 			isInterstitialAudio: true,
 			isInterstitialVideo: true,
 			start: 0,
-			duration: 30000,
+			// duration: 30000,
 		},
 	],
 };
@@ -59,7 +59,10 @@ class InterstitialService {
 		this.url = `https://${endpoint}/${app}/interstitial`;
 	}
 
-	async switchToStream(app, streamOrFileName, loop = false, duration = 3000) {
+	async switchToStream(app, streamOrFileName, loop = false, duration = null) {
+		if (this.app === app && this.streamName === streamOrFileName) {
+			return resume();
+		}
 		const { inserts } = switchPayload;
 		const insert = {
 			...inserts[0],
