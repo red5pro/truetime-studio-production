@@ -115,6 +115,7 @@ class InterstitialService {
 
 	async resume() {
 		try {
+			this.currentGuid = null;
 			const response = await fetch(this.url, {
 				method: "POST",
 				headers: {
