@@ -53,7 +53,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 						class="source-container_source"
 						data-source="sources"
 					>
+						<!-- TESTING -->
 						<p>mixer</p>
+						<button
+							id="test-stream1"
+							class="test-live_button"
+							data-name="stream1"
+						>
+							stream1
+						</button>
+						<button
+							id="test-stream2"
+							class="test-live_button"
+							data-name="stream2"
+						>
+							stream2
+						</button>
 					</div>
 					<!-- Clips -->
 					<div
@@ -61,18 +76,51 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 						class="source-container_source hidden"
 						data-source="clips"
 					>
+						<!-- TESTING -->
 						<p>clips?</p>
+						<button
+							id="test-clip1"
+							class="test-clip_button"
+							data-name="midilights_v1.5_4k60fps.mp4"
+						>
+							clip1
+						</button>
+						<button
+							id="test-clip2"
+							class="test-clip_button"
+							data-name="vid_bigbuckbunny.mp4"
+						>
+							clip2
+						</button>
 					</div>
 				</div>
+				<!-- Preview Container -->
 				<div id="preview-container" class="console-section">
 					<p>Preview</p>
+					<!-- Preview Video Container-->
 					<div id="preview-video-container">
-						<div id="preview-video"></div>
+						<div id="preview-video">
+							<!-- Preview Live -->
+							<video
+								id="preview-video_live_element"
+								autoplay
+								playsinline
+								class="hidden"
+							></video>
+							<!-- Preview Clip -->
+							<video
+								id="preview-video_clip_element"
+								autoplay
+								playsinline
+								class="hidden"
+							></video>
+						</div>
+						<!-- Preview Controls -->
 						<div id="preview-buttons-container">
 							<button id="preview-button_live" class="preview-button">
 								Go Live
 							</button>
-							<button id="publish-button_ad" class="preview-button">
+							<button id="preview-button_ad" class="preview-button">
 								Play Ad
 							</button>
 						</div>

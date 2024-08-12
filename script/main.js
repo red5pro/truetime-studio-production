@@ -27,15 +27,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import { query } from "./url-util.js";
 import AdServiceImpl from "./ad-service.js";
 import InterstitialServiceImpl from "./interstitial-service.js";
+import PreviewContainerImpl from "./preview-container.js";
+import SourceContainerImpl from "./source-container.js";
 
 const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
 
 const NAME = "[Red5:IBC]";
-const SourceSection = Object.freeze({
-	SOURCES: "sources",
-	CLIPS: "clips",
-});
 const ipv4Pattern =
 	/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const hostIsIPv4 = (host) => ipv4Pattern.test(host);
@@ -51,56 +49,26 @@ const baseConfiguration = {
 	port: hostIsIPv4(host) ? "5080" : 443,
 };
 
-const sourceButtons = Array.from(
-	document.querySelectorAll(".source-selector_item"),
+const previewContainer = new PreviewContainerImpl(
+	baseConfiguration,
+	document.querySelector("#preview-video_live_element"),
+	document.querySelector("#preview-video_clip_element"),
+	document.querySelector("#preview-button_live"),
+	document.querySelector("#preview-button_ad"),
 );
-const sourceContainers = Array.from(
-	document.querySelectorAll(".source-container_source"),
-);
-sourceButtons.forEach((button) => {
-	button.addEventListener("click", (event) => {
-		const { target } = event;
-		const { dataset } = target;
-		selectSourceSection(dataset.selection);
-	});
-});
+previewContainer.delegate = {
+	OnGoLive: ({ app, streamName, isLive }) => {},
+	OnPlayAd: () => {},
+};
 
-const selectSourceSection = (selection) => {
-	switch (selection) {
-		case SourceSection.SOURCES:
-			sourceButtons
-				.find((button) => button.dataset.selection === SourceSection.SOURCES)
-				.classList.add("source-selector_selected");
-			sourceButtons
-				.find((button) => button.dataset.selection === SourceSection.CLIPS)
-				.classList.remove("source-selector_selected");
-			sourceContainers
-				.find((container) => container.dataset.source === SourceSection.SOURCES)
-				.classList.remove("hidden");
-			sourceContainers
-				.find((container) => container.dataset.source === SourceSection.CLIPS)
-				.classList.add("hidden");
-			// TODO: Load sources
-			break;
-		case SourceSection.CLIPS:
-			sourceButtons
-				.find((button) => button.dataset.selection === SourceSection.SOURCES)
-				.classList.remove("source-selector_selected");
-			sourceButtons
-				.find((button) => button.dataset.selection === SourceSection.CLIPS)
-				.classList.add("source-selector_selected");
-			sourceContainers
-				.find((container) => container.dataset.source === SourceSection.SOURCES)
-				.classList.add("hidden");
-			sourceContainers
-				.find((container) => container.dataset.source === SourceSection.CLIPS)
-				.classList.remove("hidden");
-			// TODO: Load clips
-			break;
-		default:
-			console.error("Invalid selection");
-			break;
-	}
+const sourceContainer = new SourceContainerImpl(
+	Array.from(document.querySelectorAll(".source-selector_item")),
+	Array.from(document.querySelectorAll(".source-container_source")),
+);
+sourceContainer.delegate = {
+	OnSourceSelection: (streamFileOrName, isLive) => {
+		previewContainer.preview(app, streamFileOrName, isLive);
+	},
 };
 
 const startLiveStream = async () => {
@@ -112,6 +80,12 @@ const startLiveStream = async () => {
 			mediaElementId: "live-video_video_element",
 		};
 		const subscriber = new WHEPClient();
+		subscriber.on("*", (event) => {
+			const { type } = event;
+			if (type !== "Subscribe.Time.Update") {
+				console.log(`[Live:Subscriber] :: ${event.type}`);
+			}
+		});
 		await subscriber.init(configuration);
 		await subscriber.subscribe();
 	} catch (error) {
