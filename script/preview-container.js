@@ -34,6 +34,7 @@ class PreviewContainer {
 	playAdButton = null;
 	previewState = null;
 	clipDurationMS = null;
+	hls = null;
 	delegate = null; // OnGoLive, OnPlayAd
 
 	constructor(
@@ -143,7 +144,13 @@ class PreviewContainer {
 
 	async unpreviewClip() {
 		try {
-			this.previewVideoClipElement.stop();
+			if (this.hls) {
+				this.hls.stopLoad();
+				this.hls.destroy();
+				this.hls.remove();
+				this.hls = null;
+			}
+			this.previewVideoClipElement.pause();
 		} catch (e) {
 			console.warn(e);
 		}
@@ -196,6 +203,7 @@ class PreviewContainer {
 			hls.on(Hls.Events.MEDIA_ATTACHED, () => {
 				hls.loadSource(src);
 			});
+			this.hls = hls;
 		} else {
 			this.previewVideoClipElement.src = src;
 		}
