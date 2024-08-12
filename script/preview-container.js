@@ -33,7 +33,7 @@ class PreviewContainer {
 	goLiveButton = null;
 	playAdButton = null;
 	previewState = null;
-
+	clipDurationMS = null;
 	delegate = null; // OnGoLive, OnPlayAd
 
 	constructor(
@@ -55,6 +55,13 @@ class PreviewContainer {
 		this.playAdButton.addEventListener("click", () => {
 			this.playAd();
 		});
+
+		this.previewVideoClipElement.onloadedmetadata = () => {
+			const { duration } = this.previewVideoClipElement;
+			// HTML Video duration is in seconds, convert to milliseconds
+			this.clipDurationMS = ((duration / 60) * 1000).toFixed(2);
+			console.log("[CLIP:length]", this.previewVideoClipElement.duration);
+		};
 	}
 
 	onSubscriberEvent(event) {
@@ -68,7 +75,10 @@ class PreviewContainer {
 		if (this.previewState) {
 			try {
 				if (this.delegate) {
-					this.delegate.OnGoLive(this.previewState);
+					this.delegate.OnGoLive({
+						...this.previewState,
+						duration: this.clipDurationMS,
+					});
 				}
 				await this.unpreview();
 			} catch (e) {
@@ -85,6 +95,7 @@ class PreviewContainer {
 
 	async preview(app, streamOrFileName, isLive) {
 		let complete = false;
+		this.clipDurationMS = null;
 		this.previewVideoLiveElement.classList.toggle("hidden", !isLive);
 		this.previewVideoClipElement.classList.toggle("hidden", isLive);
 		if (isLive) {
@@ -98,6 +109,7 @@ class PreviewContainer {
 			app,
 			streamName: streamOrFileName,
 			isLive,
+			duration: this.clipDurationMS,
 		};
 		return complete;
 	}
@@ -110,6 +122,8 @@ class PreviewContainer {
 			} else {
 				await this.unpreviewClip();
 			}
+			this.previewVideoLiveElement.classList.toggle("hidden", true);
+			this.previewVideoClipElement.classList.toggle("hidden", true);
 			this.previewState = null;
 		}
 	}

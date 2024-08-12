@@ -39,15 +39,17 @@ const ipv4Pattern =
 const hostIsIPv4 = (host) => ipv4Pattern.test(host);
 
 const { host, app, streamName, get } = query();
-const service = new InterstitialServiceImpl(host, app, streamName);
-const adService = new AdServiceImpl(app);
-
+const isSecureHost = !hostIsIPv4(host);
 const baseConfiguration = {
 	host,
 	app,
-	protocol: hostIsIPv4(host) ? "ws" : "wss",
-	port: hostIsIPv4(host) ? "5080" : 443,
+	protocol: !isSecureHost ? "ws" : "wss",
+	port: !isSecureHost ? 5080 : 443,
 };
+
+const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${host}:${baseConfiguration.port}`;
+const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
+const adService = new AdServiceImpl(app);
 
 const previewContainer = new PreviewContainerImpl(
 	baseConfiguration,
@@ -57,8 +59,14 @@ const previewContainer = new PreviewContainerImpl(
 	document.querySelector("#preview-button_ad"),
 );
 previewContainer.delegate = {
-	OnGoLive: ({ app, streamName, isLive }) => {
-		service.switchToStream(app, streamName, !isLive);
+	OnGoLive: ({ app, streamName, isLive, duration }) => {
+		service.switchToStream(
+			app,
+			streamName,
+			isLive,
+			!isLive,
+			isLive ? null : duration,
+		);
 	},
 	OnPlayAd: () => {
 		// TODO: Test

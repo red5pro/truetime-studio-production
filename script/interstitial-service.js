@@ -52,25 +52,40 @@ class InterstitialService {
 	url = "https://api.red5pro.com";
 	app = "live";
 	streamName = "streamName";
+	interstitialGuid = "live/streamName";
+	currentGuid = null;
 
 	constructor(endpoint, app, streamName) {
 		this.app = app;
 		this.streamName = streamName;
-		this.url = `https://${endpoint}/${app}/interstitial`;
+		this.interstitialGuid = `${app}/${streamName}`;
+		this.url = `${endpoint}/${app}/interstitial`;
 	}
 
-	async switchToStream(app, streamOrFileName, loop = false, duration = null) {
-		if (this.app === app && this.streamName === streamOrFileName) {
-			return resume();
+	async switchToStream(
+		app,
+		streamOrFileName,
+		isLive,
+		loop = false,
+		duration = null,
+	) {
+		const toGuid = `${app}/${streamOrFileName}`;
+
+		if (toGuid === this.interstitialGuid) {
+			return await this.resume();
+		} else if (toGuid === this.currentGuid) {
+			return true;
 		}
+
 		const { inserts } = switchPayload;
 		const insert = {
 			...inserts[0],
 			...{
-				target: `${this.app}/${this.streamName}`,
-				interstitial: `${app}/${streamOrFileName}`,
+				target: this.interstitialGuid,
+				interstitial: toGuid,
 				loop,
 				duration,
+				type: isLive ? "INDEFINITE" : "STREAM_CLOCK",
 			},
 		};
 		const payload = { ...switchPayload, inserts: [insert] };
@@ -83,7 +98,15 @@ class InterstitialService {
 				body: JSON.stringify(payload),
 			});
 			const { status } = response;
-			return status >= 200 && status < 300;
+			const success = status >= 200 && status < 300;
+			if (success) {
+				// If we are switching to a new stream, we need to call resume to unload current stream.
+				if (this.currentGuid && this.currentGuid !== this.interstitialGuid) {
+					await this.resume();
+				}
+				this.currentGuid = toGuid;
+			}
+			return success;
 		} catch (error) {
 			console.error(error);
 			return false;
@@ -91,14 +114,16 @@ class InterstitialService {
 	}
 
 	async resume() {
-		const resumeTo = `${this.app}/${this.streamName}`;
 		try {
 			const response = await fetch(this.url, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ ...resumePayload, resume: resumeTo }),
+				body: JSON.stringify({
+					...resumePayload,
+					resume: this.interstitialGuid,
+				}),
 			});
 			const { status } = response;
 			return status >= 200 && status < 300;
