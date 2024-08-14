@@ -49,6 +49,7 @@ const {
 } = query();
 
 const isSecureHost = !hostIsIPv4(host);
+const isMixerSecureHost = false; // !hostIsIPv4(mixerHost);
 const baseConfiguration = {
 	host,
 	app,
@@ -56,9 +57,11 @@ const baseConfiguration = {
 	port: !isSecureHost ? 5080 : 443,
 };
 const mixerConfiguration = {
-	isSecure: false, // hostIsIPv4(mixerHostName),
+	isSecure: isMixerSecureHost,
 	host: mixerHost,
 	app,
+	protocol: !isMixerSecureHost ? "ws" : "wss",
+	port: !isMixerSecureHost ? 5080 : 443,
 	eventName: mixerEventName,
 	streamName: mixerStreamName,
 };
@@ -68,6 +71,7 @@ const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
 const adService = new AdServiceImpl(app);
 
 const previewContainer = new PreviewContainerImpl(
+	mixerConfiguration,
 	baseConfiguration,
 	document.querySelector("#preview-video_live_element"),
 	document.querySelector("#preview-video_clip_element"),
@@ -97,7 +101,15 @@ const sourceContainer = new SourceContainerImpl(
 );
 sourceContainer.delegate = {
 	OnSourceSelection: (streamFileOrName, isLive) => {
-		previewContainer.preview(app, streamFileOrName, isLive);
+		let webapp = app;
+		let stream = streamFileOrName;
+		let streamIsGuid = streamFileOrName.includes("/");
+		if (streamIsGuid) {
+			const location = streamFileOrName.split("/");
+			stream = location.pop();
+			webapp = location.join("/");
+		}
+		previewContainer.preview(webapp, stream, isLive);
 	},
 };
 

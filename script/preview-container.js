@@ -27,7 +27,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 const { WHEPClient } = red5prosdk;
 class PreviewContainer {
 	subscriber = null;
-	baseConfiguration = null;
+	liveConfiguration = null;
+	clipConfiguration = null;
 	previewVideoLiveElement = null;
 	previewVideoClipElement = null;
 	goLiveButton = null;
@@ -38,13 +39,15 @@ class PreviewContainer {
 	delegate = null; // OnGoLive, OnPlayAd
 
 	constructor(
-		baseConfiguration,
+		liveConfiguration,
+		clipConfiguration,
 		previewVideoLiveElement,
 		previewVideoClipElement,
 		goLiveButton,
 		playAdButton,
 	) {
-		this.baseConfiguration = baseConfiguration;
+		this.liveConfiguration = liveConfiguration;
+		this.clipConfiguration = clipConfiguration;
 		this.previewVideoLiveElement = previewVideoLiveElement;
 		this.previewVideoClipElement = previewVideoClipElement;
 		this.goLiveButton = goLiveButton;
@@ -173,7 +176,7 @@ class PreviewContainer {
 		} else {
 			try {
 				const config = {
-					...this.baseConfiguration,
+					...this.liveConfiguration,
 					app,
 					streamName,
 					mediaElementId: this.previewVideoLiveElement.id,
@@ -186,6 +189,7 @@ class PreviewContainer {
 				await this.subscriber.subscribe();
 			} catch (e) {
 				console.error(e);
+				this.unpreviewLive();
 				return false;
 			}
 		}
@@ -194,7 +198,7 @@ class PreviewContainer {
 
 	async updateClipPreview(app, streamFilename) {
 		const isHLS = streamFilename.includes(".m3u8");
-		const { host, protocol, port } = this.baseConfiguration;
+		const { host, protocol, port } = this.clipConfiguration;
 		const proto = protocol === "ws" ? "http" : "https";
 		const src = `${proto}://${host}:${port}/${app}/streams/${streamFilename}`;
 		if (isHLS) {

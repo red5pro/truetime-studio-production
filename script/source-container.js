@@ -133,6 +133,7 @@ class SourceContainer {
 	sourceButtons = [];
 	sourceContainers = [];
 	mixerConfiguration = null;
+	videoManifest = null;
 	delegate = null;
 
 	constructor(sourceButtons, sourceContainers, mixerConfiguration) {
@@ -218,8 +219,8 @@ class SourceContainer {
 		const port = isSecure ? 443 : 5080;
 		const eventURL = `${protocol}://${host}:${port}/brewmixer/1.0/${eventName}`;
 		try {
-			let eventVideos = await this.getEvent(eventURL);
-			console.log("EVENT VIDEOS:", eventVideos);
+			this.videoManifest = await this.getEvent(eventURL);
+			console.log("[MIXER:manifest]:", this.videoManifest);
 
 			const subscriberConfig = {
 				protocol: isSecure ? "wss" : "ws",
@@ -233,17 +234,17 @@ class SourceContainer {
 			console.error(error);
 			alert("Failed to load mixer.");
 		}
-
-		// TODO: Start subscriber.
-		// TODO: Handle event.
 	}
 
 	async startMixerPlayback(subscriberConfig, mediaElementId) {
 		try {
-			const { WHEPClient } = red5prosdk;
+			const { WHEPClient, RTCSubscriber } = red5prosdk;
 
 			// Video/Grid Calculations.
 			const mixerVideo = document.getElementById(mediaElementId);
+			mixerVideo.addEventListener("click", (event) => {
+				this.handleMixerClick(event);
+			});
 			mixerVideo.addEventListener("resize", () => {
 				this.recalculateCoordinates();
 			});
@@ -253,7 +254,7 @@ class SourceContainer {
 			ro.observe(mixerVideo);
 
 			// Mixer Video Subscription.
-			const subscriber = new WHEPClient();
+			const subscriber = new RTCSubscriber();
 			subscriber.on("*", (event) => {
 				const { type } = event;
 				if (type !== "Subscribe.Time.Update") {
@@ -283,7 +284,35 @@ class SourceContainer {
 			clientHeight,
 			mixerFit,
 		);
-		console.log("COORDINATES:", coordinates);
+		return {
+			...coordinates,
+			widthPercentage: coordinates.width / videoWidth,
+			heightPercentage: coordinates.height / videoHeight,
+		};
+	}
+
+	handleMixerClick(event) {
+		const { offsetX, offsetY } = event;
+		const coordinates = this.recalculateCoordinates();
+		console.log("[MIXER:coordinates]:", coordinates);
+		console.log("[MIXER:click]:", offsetX, offsetY);
+		const { widthPercentage, heightPercentage } = coordinates;
+		const video = this.videoManifest.find((video) => {
+			const { destX, destY, destWidth, destHeight } = video;
+			const scaleX = destX * widthPercentage;
+			const scaleY = destY * heightPercentage;
+			const scaleWidth = (destX + destWidth) * widthPercentage;
+			const scaleHeight = (destY + destHeight) * heightPercentage;
+			const leftOfX = offsetX >= scaleX;
+			const rightOfXWidth = offsetX <= scaleWidth;
+			const belowY = offsetY >= scaleY;
+			const aboveYHeight = offsetY <= scaleHeight;
+			return leftOfX && rightOfXWidth && belowY && aboveYHeight;
+		});
+		if (video) {
+			console.log("[MIXER:video]:", video);
+			this.selectSource(video.streamGuid, true);
+		}
 	}
 
 	selectSource(item, isLive) {
