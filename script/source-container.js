@@ -38,6 +38,7 @@ const CANNED_EVENT_DATA = [
 					node: "SolidColorNode",
 				},
 				{
+					node: "VideoSourceNode",
 					streamGuid: "live/stream1",
 					sourceX: 0,
 					sourceY: 0,
@@ -45,45 +46,104 @@ const CANNED_EVENT_DATA = [
 					sourceHeight: 1080,
 					destX: 0,
 					destY: 0,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
+					destWidth: 640,
+					destHeight: 360,
 				},
 				{
+					node: "VideoSourceNode",
 					streamGuid: "live/stream2",
 					sourceX: 0,
 					sourceY: 0,
 					sourceWidth: 1920,
 					sourceHeight: 1080,
-					destX: 960,
+					destX: 640,
 					destY: 0,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
+					destWidth: 640,
+					destHeight: 360,
 				},
 				{
+					node: "VideoSourceNode",
 					streamGuid: "live/stream3",
 					sourceX: 0,
 					sourceY: 0,
 					sourceWidth: 1920,
 					sourceHeight: 1080,
-					destX: 0,
-					destY: 540,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
+					destX: 1280,
+					destY: 0,
+					destWidth: 640,
+					destHeight: 360,
 				},
 				{
+					node: "VideoSourceNode",
 					streamGuid: "live/stream4",
 					sourceX: 0,
 					sourceY: 0,
 					sourceWidth: 1920,
 					sourceHeight: 1080,
-					destX: 960,
-					destY: 540,
-					destWidth: 960,
-					destHeight: 540,
+					destX: 0,
+					destY: 360,
+					destWidth: 640,
+					destHeight: 360,
+				},
+				{
 					node: "VideoSourceNode",
+					streamGuid: "live/stream5",
+					sourceX: 0,
+					sourceY: 0,
+					sourceWidth: 1920,
+					sourceHeight: 1080,
+					destX: 640,
+					destY: 360,
+					destWidth: 640,
+					destHeight: 360,
+				},
+				{
+					node: "VideoSourceNode",
+					streamGuid: "live/stream6",
+					sourceX: 0,
+					sourceY: 0,
+					sourceWidth: 1920,
+					sourceHeight: 1080,
+					destX: 1280,
+					destY: 360,
+					destWidth: 640,
+					destHeight: 360,
+				},
+				{
+					node: "VideoSourceNode",
+					streamGuid: "live/stream7",
+					sourceX: 0,
+					sourceY: 0,
+					sourceWidth: 1920,
+					sourceHeight: 1080,
+					destX: 0,
+					destY: 720,
+					destWidth: 640,
+					destHeight: 360,
+				},
+				{
+					node: "VideoSourceNode",
+					streamGuid: "live/stream8",
+					sourceX: 0,
+					sourceY: 0,
+					sourceWidth: 1920,
+					sourceHeight: 1080,
+					destX: 640,
+					destY: 720,
+					destWidth: 640,
+					destHeight: 360,
+				},
+				{
+					node: "VideoSourceNode",
+					streamGuid: "live/stream9",
+					sourceX: 0,
+					sourceY: 0,
+					sourceWidth: 1920,
+					sourceHeight: 1080,
+					destX: 1280,
+					destY: 720,
+					destWidth: 640,
+					destHeight: 360,
 				},
 			],
 			node: "CompositorNode",
@@ -110,6 +170,36 @@ const CANNED_EVENT_DATA = [
 				},
 				{
 					streamGuid: "live/stream4",
+					pan: 0,
+					gain: -100,
+					node: "AudioSourceNode",
+				},
+				{
+					streamGuid: "live/stream5",
+					pan: 0,
+					gain: -100,
+					node: "AudioSourceNode",
+				},
+				{
+					streamGuid: "live/stream6",
+					pan: 0,
+					gain: -100,
+					node: "AudioSourceNode",
+				},
+				{
+					streamGuid: "live/stream7",
+					pan: 0,
+					gain: -100,
+					node: "AudioSourceNode",
+				},
+				{
+					streamGuid: "live/stream8",
+					pan: 0,
+					gain: -100,
+					node: "AudioSourceNode",
+				},
+				{
+					streamGuid: "live/stream9",
 					pan: 0,
 					gain: -100,
 					node: "AudioSourceNode",
@@ -238,7 +328,7 @@ class SourceContainer {
 
 	async startMixerPlayback(subscriberConfig, mediaElementId) {
 		try {
-			const { WHEPClient, RTCSubscriber } = red5prosdk;
+			const { WHEPClient } = red5prosdk;
 
 			// Video/Grid Calculations.
 			const mixerVideo = document.getElementById(mediaElementId);
@@ -254,7 +344,7 @@ class SourceContainer {
 			ro.observe(mixerVideo);
 
 			// Mixer Video Subscription.
-			const subscriber = new RTCSubscriber();
+			const subscriber = new WHEPClient();
 			subscriber.on("*", (event) => {
 				const { type } = event;
 				if (type !== "Subscribe.Time.Update") {

@@ -26,9 +26,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*global red5prosdk*/
 import { query } from "./url-util.js";
 import AdServiceImpl from "./ad-service.js";
+import ClipsServiceImpl from "./clips-service.js";
 import InterstitialServiceImpl from "./interstitial-service.js";
 import PreviewContainerImpl from "./preview-container.js";
 import SourceContainerImpl from "./source-container.js";
+import ClipsControllerImpl from "./clips-controller.js";
 
 const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
@@ -68,6 +70,7 @@ const mixerConfiguration = {
 
 const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${host}:${baseConfiguration.port}`;
 const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
+const clipsService = new ClipsServiceImpl(serviceEndpoint);
 const adService = new AdServiceImpl(app);
 
 const previewContainer = new PreviewContainerImpl(
@@ -84,7 +87,7 @@ previewContainer.delegate = {
 			app,
 			streamName,
 			isLive,
-			!isLive,
+			false,
 			isLive ? null : duration,
 		);
 	},
@@ -98,6 +101,7 @@ const sourceContainer = new SourceContainerImpl(
 	Array.from(document.querySelectorAll(".source-selector_item")),
 	Array.from(document.querySelectorAll(".source-container_source")),
 	mixerConfiguration,
+	clipsService,
 );
 sourceContainer.delegate = {
 	OnSourceSelection: (streamFileOrName, isLive) => {
@@ -112,6 +116,25 @@ sourceContainer.delegate = {
 		previewContainer.preview(webapp, stream, isLive);
 	},
 };
+
+const clipsController = new ClipsControllerImpl(
+	clipsService,
+	document.querySelector("#clips-video-container"),
+);
+clipsController.delegate = {
+	OnSelection: (streamFileOrName) => {
+		let webapp = app;
+		let stream = streamFileOrName;
+		let streamIsGuid = streamFileOrName.includes("/");
+		if (streamIsGuid) {
+			const location = streamFileOrName.split("/");
+			stream = location.pop();
+			webapp = location.join("/");
+		}
+		previewContainer.preview(webapp, stream, false);
+	},
+};
+clipsController.start();
 
 const startLiveStream = async () => {
 	try {

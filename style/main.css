@@ -142,6 +142,37 @@ h1 {
 	display: flex;
 	align-items: start;
 	color: white;
+	position: relative;
+}
+
+.source-container_controls {
+	height: 40px;
+	display: block;
+	overflow: hidden;
+	position: absolute;
+	top: -40px;
+}
+
+#mixer-controls,
+#clips-controls {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	column-gap: 16px;
+	height: 100%;
+}
+
+#mixer-controls label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+#mixer-controls input[type="radio"] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 #clips-video-container {
@@ -157,7 +188,7 @@ h1 {
 	cursor: pointer;
 }
 
-#source-video-container video {
+#mixer-video-container video {
 	width: 100%;
 	background-color: #292929;
 }
