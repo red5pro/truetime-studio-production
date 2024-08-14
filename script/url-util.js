@@ -61,10 +61,22 @@ export const query = () => {
 	let streamName = searchParams.get("streamName")
 		? decodeURIComponent(searchParams.get("streamName"))
 		: "stream1";
+	let mixerHost = searchParams.get("mixer_host")
+		? decodeURIComponent(searchParams.get("mixer_host"))
+		: undefined;
+	let mixerEventName = searchParams.get("mixer_event_name")
+		? decodeURIComponent(searchParams.get("mixer_event_name"))
+		: "event1";
+	let mixerStreamName = searchParams.get("mixer_stream_name")
+		? decodeURIComponent(searchParams.get("mixer_stream_name"))
+		: "mix1";
 	return {
 		host,
 		app,
 		streamName,
+		mixerHost,
+		mixerEventName,
+		mixerStreamName,
 		get: (key) => {
 			return searchParams.get(key);
 		},

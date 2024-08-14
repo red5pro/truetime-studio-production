@@ -38,13 +38,29 @@ const ipv4Pattern =
 	/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const hostIsIPv4 = (host) => ipv4Pattern.test(host);
 
-const { host, app, streamName, get } = query();
+const {
+	host,
+	app,
+	streamName,
+	mixerHost,
+	mixerEventName,
+	mixerStreamName,
+	get,
+} = query();
+
 const isSecureHost = !hostIsIPv4(host);
 const baseConfiguration = {
 	host,
 	app,
 	protocol: !isSecureHost ? "ws" : "wss",
 	port: !isSecureHost ? 5080 : 443,
+};
+const mixerConfiguration = {
+	isSecure: false, // hostIsIPv4(mixerHostName),
+	host: mixerHost,
+	app,
+	eventName: mixerEventName,
+	streamName: mixerStreamName,
 };
 
 const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${host}:${baseConfiguration.port}`;
@@ -77,6 +93,7 @@ previewContainer.delegate = {
 const sourceContainer = new SourceContainerImpl(
 	Array.from(document.querySelectorAll(".source-selector_item")),
 	Array.from(document.querySelectorAll(".source-container_source")),
+	mixerConfiguration,
 );
 sourceContainer.delegate = {
 	OnSourceSelection: (streamFileOrName, isLive) => {
