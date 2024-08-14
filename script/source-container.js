@@ -125,6 +125,10 @@ const SourceSection = Object.freeze({
 	CLIPS: "clips",
 });
 
+const MIXER_VIDEO_ELEMENT_ID = "mixer-video";
+
+import { getCoordinates } from "./coord-util.js";
+
 class SourceContainer {
 	sourceButtons = [];
 	sourceContainers = [];
@@ -223,9 +227,8 @@ class SourceContainer {
 				host,
 				app,
 				streamName,
-				mediaElementId: "mixer-video",
 			};
-			await this.startMixerPlayback(subscriberConfig);
+			await this.startMixerPlayback(subscriberConfig, MIXER_VIDEO_ELEMENT_ID);
 		} catch (error) {
 			console.error(error);
 			alert("Failed to load mixer.");
@@ -235,9 +238,21 @@ class SourceContainer {
 		// TODO: Handle event.
 	}
 
-	async startMixerPlayback(subscriberConfig) {
+	async startMixerPlayback(subscriberConfig, mediaElementId) {
 		try {
 			const { WHEPClient } = red5prosdk;
+
+			// Video/Grid Calculations.
+			const mixerVideo = document.getElementById(mediaElementId);
+			mixerVideo.addEventListener("resize", () => {
+				this.recalculateCoordinates();
+			});
+			const ro = new ResizeObserver(() => {
+				this.recalculateCoordinates();
+			});
+			ro.observe(mixerVideo);
+
+			// Mixer Video Subscription.
 			const subscriber = new WHEPClient();
 			subscriber.on("*", (event) => {
 				const { type } = event;
@@ -245,12 +260,30 @@ class SourceContainer {
 					console.log(`[Mixer:Subscriber] :: ${event.type}`);
 				}
 			});
-			await subscriber.init(subscriberConfig);
+			await subscriber.init({ ...subscriberConfig, mediaElementId });
 			await subscriber.subscribe();
+			this.recalculateCoordinates();
 		} catch (error) {
 			console.error(error);
 			throw new Error(`Failed to load WHEPClient: ${error.message}`);
 		}
+	}
+
+	recalculateCoordinates() {
+		const mixerVideo = document.getElementById(MIXER_VIDEO_ELEMENT_ID);
+		const { clientWidth, clientHeight } = mixerVideo;
+		const { videoWidth, videoHeight } = mixerVideo;
+		const mixerFit = window
+			.getComputedStyle(mixerVideo)
+			.getPropertyValue("object-fit");
+		const coordinates = getCoordinates(
+			videoWidth,
+			videoHeight,
+			clientWidth,
+			clientHeight,
+			mixerFit,
+		);
+		console.log("COORDINATES:", coordinates);
 	}
 
 	selectSource(item, isLive) {
