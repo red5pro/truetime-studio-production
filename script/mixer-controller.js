@@ -40,6 +40,8 @@ class MixerController {
 		this.mixerConfiguration = mixerConfiguration;
 		this.layoutControls = layoutControls;
 
+		this.setUpDragDrop();
+
 		layoutControls.forEach((control) => {
 			control.addEventListener("click", async (event) => {
 				const { target } = event;
@@ -144,11 +146,10 @@ class MixerController {
 		};
 	}
 
-	handleMixerClick(event) {
-		const { offsetX, offsetY } = event;
+	getVideoUnderPoint(x, y) {
 		const coordinates = this.recalculateCoordinates();
 		console.log("[MIXER:coordinates]:", coordinates);
-		console.log("[MIXER:click]:", offsetX, offsetY);
+		console.log("[MIXER:click]:", x, y);
 		const { widthPercentage, heightPercentage } = coordinates;
 		const video = this.videoManifest.find((video) => {
 			const { destX, destY, destWidth, destHeight } = video;
@@ -156,16 +157,41 @@ class MixerController {
 			const scaleY = destY * heightPercentage;
 			const scaleWidth = (destX + destWidth) * widthPercentage;
 			const scaleHeight = (destY + destHeight) * heightPercentage;
-			const leftOfX = offsetX >= scaleX;
-			const rightOfXWidth = offsetX <= scaleWidth;
-			const belowY = offsetY >= scaleY;
-			const aboveYHeight = offsetY <= scaleHeight;
+			const leftOfX = x >= scaleX;
+			const rightOfXWidth = x <= scaleWidth;
+			const belowY = y >= scaleY;
+			const aboveYHeight = y <= scaleHeight;
 			return leftOfX && rightOfXWidth && belowY && aboveYHeight;
 		});
+		return video;
+	}
+
+	handleMixerClick(event) {
+		const { offsetX, offsetY } = event;
+		const video = this.getVideoUnderPoint(offsetX, offsetY);
 		if (video) {
 			console.log("[MIXER:video]:", video);
 			this.selectSource(video.streamGuid, true);
 		}
+	}
+
+	setUpDragDrop() {
+		const mixerVideo = document.getElementById(MIXER_VIDEO_ELEMENT_ID);
+		mixerVideo.addEventListener("dragstart", (event) => {
+			const { offsetX, offsetY } = event;
+			const video = this.getVideoUnderPoint(offsetX, offsetY);
+			if (video) {
+				event.dataTransfer.setData(
+					"text/plain",
+					JSON.stringify({ ...video, type: "live" }),
+				);
+				event.dataTransfer.setDragImage(
+					document.querySelector(".logo-holder_img"),
+					0,
+					50,
+				);
+			}
+		});
 	}
 
 	selectSource(item, isLive) {
