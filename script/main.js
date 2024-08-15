@@ -77,6 +77,19 @@ const clipsService = new ClipsServiceImpl(serviceEndpoint);
 const mixerService = new MixerServiceImpl(mixerEndpoint);
 const adService = new AdServiceImpl(app);
 
+// Source / Clips Toggle UI
+const sourceContainer = new SourceContainerImpl(
+	Array.from(document.querySelectorAll(".source-selector_item")),
+	Array.from(document.querySelectorAll(".source-container_source")),
+);
+
+// Simple Resume Button.
+const stopButton = document.querySelector("#ad-info-container_button");
+stopButton.addEventListener("click", () => {
+	service.resume();
+});
+
+// Preview Container for Source / Clips
 const droppables = Array.from(document.querySelectorAll(".video-droppable"));
 const previewContainer = new PreviewContainerImpl(
 	mixerConfiguration,
@@ -109,11 +122,7 @@ previewContainer.delegate = {
 	},
 };
 
-const sourceContainer = new SourceContainerImpl(
-	Array.from(document.querySelectorAll(".source-selector_item")),
-	Array.from(document.querySelectorAll(".source-container_source")),
-);
-
+// Mixer Controller
 const layoutControls = Array.from(
 	document.querySelectorAll('input[name="layout"]'),
 );
@@ -136,6 +145,7 @@ mixerController.delegate = {
 	},
 };
 
+// Clips Controller
 const clipsController = new ClipsControllerImpl(
 	clipsService,
 	document.querySelector("#clips-video-container"),
@@ -155,6 +165,7 @@ clipsController.delegate = {
 };
 clipsController.start();
 
+// Live Stream Playback
 const startLiveStream = async () => {
 	try {
 		const { WHEPClient } = red5prosdk;
@@ -178,4 +189,5 @@ const startLiveStream = async () => {
 	}
 };
 
+// Start the live stream.
 startLiveStream();
