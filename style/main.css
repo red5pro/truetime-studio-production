@@ -170,9 +170,16 @@ h1 {
 
 #mixer-controls input[type="radio"] {
 	position: absolute;
-	opacity: 0;
 	width: 0;
 	height: 0;
+}
+
+#mixer-controls input[type="radio"] + img {
+	opacity: 0.5;
+}
+
+#mixer-controls input[type="radio"]:checked + img {
+	opacity: 1;
 }
 
 #clips-video-container {

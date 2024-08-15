@@ -31,6 +31,7 @@ class PreviewContainer {
 	clipConfiguration = null;
 	previewVideoLiveElement = null;
 	previewVideoClipElement = null;
+	dropElements = null;
 	goLiveButton = null;
 	playAdButton = null;
 	previewState = null;
@@ -41,6 +42,7 @@ class PreviewContainer {
 	constructor(
 		liveConfiguration,
 		clipConfiguration,
+		dropElements,
 		previewVideoLiveElement,
 		previewVideoClipElement,
 		goLiveButton,
@@ -50,6 +52,7 @@ class PreviewContainer {
 		this.clipConfiguration = clipConfiguration;
 		this.previewVideoLiveElement = previewVideoLiveElement;
 		this.previewVideoClipElement = previewVideoClipElement;
+		this.dropElements = dropElements;
 		this.goLiveButton = goLiveButton;
 		this.playAdButton = playAdButton;
 
@@ -66,6 +69,24 @@ class PreviewContainer {
 			this.clipDurationMS = ((duration / 60) * 1000).toFixed(2);
 			console.log("[CLIP:length]", this.previewVideoClipElement.duration);
 		};
+
+		this.dropElements.forEach((element) => {
+			element.addEventListener("dragover", (event) => {
+				event.preventDefault();
+				event.dataTransfer.dropEffect = "move";
+			});
+			element.addEventListener("drop", (event) => {
+				event.preventDefault();
+				const data = event.dataTransfer.getData("text/plain");
+				const json = JSON.parse(data);
+				const { streamGuid, type } = json;
+				const isLive = type === "live";
+				const location = streamGuid.split("/");
+				const streamName = location.pop();
+				const app = location.join("/");
+				this.preview(app, streamName, isLive);
+			});
+		});
 	}
 
 	onSubscriberEvent(event) {
@@ -200,7 +221,8 @@ class PreviewContainer {
 		const isHLS = streamFilename.includes(".m3u8");
 		const { host, protocol, port } = this.clipConfiguration;
 		const proto = protocol === "ws" ? "http" : "https";
-		const src = `${proto}://${host}:${port}/${app}/streams/${streamFilename}`;
+		const location = app.includes("/streams") ? app : `${app}/streams`;
+		const src = `${proto}://${host}:${port}/${location}/${streamFilename}`;
 		if (isHLS) {
 			const hls = new Hls({ debug: true, backBufferLength: 0 });
 			hls.attachMedia(this.previewVideoClipElement);

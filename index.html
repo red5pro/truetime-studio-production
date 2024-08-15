@@ -48,15 +48,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 						</p>
 						<p class="source-selector_item" data-selection="clips">Clips</p>
 					</div>
-
-					<!-- Sources / Mixer -->
+					<!-- Mixer -->
 					<div
 						id="mixer-video-container"
 						class="source-container_source"
 						data-source="sources"
 					>
+						<!-- Mixer Video 	-->
 						<video id="mixer-video" autoplay playsinline muted></video>
 						<div class="source-container_controls">
+							<!-- Mixer Controls -->
 							<div id="mixer-controls">
 								<p class="layout-item">
 									<label>
@@ -91,13 +92,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 					<p>Preview</p>
 					<!-- Preview Video Container-->
 					<div id="preview-video-container">
-						<div id="preview-video">
+						<div id="preview-video" class="video-droppable">
 							<!-- Preview Live -->
 							<video
 								id="preview-video_live_element"
 								autoplay
 								playsinline
-								class="hidden"
+								class="hidden video-droppable"
 							></video>
 							<!-- Preview Clip -->
 							<video
@@ -105,7 +106,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 								autoplay
 								playsinline
 								loop
-								class="hidden"
+								class="hidden video-droppable"
 							></video>
 						</div>
 						<!-- Preview Controls -->

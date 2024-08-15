@@ -27,10 +27,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import { query } from "./url-util.js";
 import AdServiceImpl from "./ad-service.js";
 import ClipsServiceImpl from "./clips-service.js";
+import MixerServiceImpl from "./mixer-service.js";
 import InterstitialServiceImpl from "./interstitial-service.js";
 import PreviewContainerImpl from "./preview-container.js";
 import SourceContainerImpl from "./source-container.js";
 import ClipsControllerImpl from "./clips-controller.js";
+import MixerControllerImpl from "./mixer-controller.js";
 
 const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
@@ -51,7 +53,7 @@ const {
 } = query();
 
 const isSecureHost = !hostIsIPv4(host);
-const isMixerSecureHost = false; // !hostIsIPv4(mixerHost);
+const isMixerSecureHost = !hostIsIPv4(mixerHost);
 const baseConfiguration = {
 	host,
 	app,
@@ -68,14 +70,18 @@ const mixerConfiguration = {
 	streamName: mixerStreamName,
 };
 
-const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${host}:${baseConfiguration.port}`;
+const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${baseConfiguration.host}:${baseConfiguration.port}`;
+const mixerEndpoint = `http${isMixerSecureHost ? "s" : ""}://${mixerConfiguration.host}:${mixerConfiguration.port}/brewmixer/1.0/${mixerConfiguration.eventName}`;
 const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
 const clipsService = new ClipsServiceImpl(serviceEndpoint);
+const mixerService = new MixerServiceImpl(mixerEndpoint);
 const adService = new AdServiceImpl(app);
 
+const droppables = Array.from(document.querySelectorAll(".video-droppable"));
 const previewContainer = new PreviewContainerImpl(
 	mixerConfiguration,
 	baseConfiguration,
+	droppables,
 	document.querySelector("#preview-video_live_element"),
 	document.querySelector("#preview-video_clip_element"),
 	document.querySelector("#preview-button_live"),
@@ -85,7 +91,7 @@ previewContainer.delegate = {
 	OnGoLive: ({ app, streamName, isLive, duration }) => {
 		service.switchToStream(
 			app,
-			streamName,
+			isLive ? streamName : `${streamName.replace(".mp4", ".flv")}`,
 			isLive,
 			false,
 			isLive ? null : duration,
@@ -94,16 +100,29 @@ previewContainer.delegate = {
 	OnPlayAd: () => {
 		// TODO: Test
 		service.resume();
+		const streamFileOrName = adService.getNext();
+		service.switchToStream(
+			app,
+			`${streamFileOrName.replace(".mp4", ".flv")}`,
+			false,
+		);
 	},
 };
 
 const sourceContainer = new SourceContainerImpl(
 	Array.from(document.querySelectorAll(".source-selector_item")),
 	Array.from(document.querySelectorAll(".source-container_source")),
-	mixerConfiguration,
-	clipsService,
 );
-sourceContainer.delegate = {
+
+const layoutControls = Array.from(
+	document.querySelectorAll('input[name="layout"]'),
+);
+const mixerController = new MixerControllerImpl(
+	mixerService,
+	mixerConfiguration,
+	layoutControls,
+);
+mixerController.delegate = {
 	OnSourceSelection: (streamFileOrName, isLive) => {
 		let webapp = app;
 		let stream = streamFileOrName;

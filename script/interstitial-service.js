@@ -84,7 +84,7 @@ class InterstitialService {
 				target: this.interstitialGuid,
 				interstitial: toGuid,
 				loop,
-				duration,
+				duration: duration ? Number(duration) : null,
 				type: isLive ? "INDEFINITE" : "STREAM_CLOCK",
 			},
 		};

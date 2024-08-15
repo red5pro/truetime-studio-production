@@ -74,6 +74,12 @@ class ClipsController {
 			video.addEventListener("click", (event) => {
 				this.delegate.OnSelection(filename);
 			});
+			video.addEventListener("dragstart", (event) => {
+				event.dataTransfer.setData(
+					"text/plain",
+					JSON.stringify({ ...clip, type: "clip" }),
+				);
+			});
 			containerElement.appendChild(video);
 		});
 	}
