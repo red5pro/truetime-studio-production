@@ -192,9 +192,9 @@ class MixerController {
 					JSON.stringify({ ...video, type: "live" }),
 				);
 				event.dataTransfer.setDragImage(
-					document.querySelector(".logo-holder_img"),
-					0,
-					50,
+					document.querySelector("#dragger_icon"),
+					40,
+					40,
 				);
 			}
 		});

@@ -66,8 +66,8 @@ class PreviewContainer {
 		this.previewVideoClipElement.onloadedmetadata = () => {
 			const { duration } = this.previewVideoClipElement;
 			// HTML Video duration is in seconds, convert to milliseconds
-			this.clipDurationMS = ((duration / 60) * 1000).toFixed(2);
-			// console.log("[CLIP:length]", this.previewVideoClipElement.duration);
+			this.clipDurationMS = (duration * 1000).toFixed(0);
+			console.log("[CLIP:length]", this.previewVideoClipElement.duration);
 		};
 
 		this.dropElements.forEach((element) => {

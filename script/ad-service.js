@@ -47,9 +47,8 @@ class AdService {
 	}
 
 	getNext() {
-		const stream = AD_STREAMS[this.index];
 		this.index = (this.index + 1) % AD_STREAMS.length;
-		return `${this.app}/${stream}`;
+		return AD_STREAMS[this.index];
 	}
 }
 

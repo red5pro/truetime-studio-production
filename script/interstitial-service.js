@@ -49,6 +49,7 @@ const resumePayload = {
 };
 
 class InterstitialService {
+	insertId = 1;
 	url = "https://api.red5pro.com";
 	app = "live";
 	streamName = "streamName";
@@ -73,11 +74,13 @@ class InterstitialService {
 		const insert = {
 			...inserts[0],
 			...{
+				id: this.insertId++,
 				target: this.interstitialGuid,
 				interstitial: streamGuid,
 				loop,
-				duration: duration ? Number(duration) : null,
-				type: isLive ? "INDEFINITE" : "STREAM_CLOCK",
+				start: new Date().getTime(),
+				duration: duration ? Number(Math.floor(duration)) : 0,
+				type: isLive || !duration ? "INDEFINITE" : "WALL_CLOCK",
 			},
 		};
 		const payload = { ...switchPayload, inserts: [insert] };
