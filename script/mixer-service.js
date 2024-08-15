@@ -618,8 +618,18 @@ class MixerService {
 		this.endpoint = endpoint;
 	}
 
+	responseDataToVideoListing(responseData) {
+		const videoRoot = responseData.filter((type) => type.rootVideoNode);
+		const videoNodes = videoRoot ? videoRoot[0].rootVideoNode : null;
+		const videos =
+			videoNodes && videoNodes.nodes
+				? videoNodes.nodes.filter((node) => node.node === "VideoSourceNode")
+				: [];
+		return videos;
+	}
+
 	async updateGrid(columns) {
-		console.log("UPDATE GRID:", columns);
+		let eventJSON = null;
 		try {
 			let grid = CANNED_2x2;
 			switch ("" + columns) {
@@ -638,10 +648,10 @@ class MixerService {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(grid),
+				body: JSON.stringify({ rootNodes: grid }),
 			});
 			if (eventResponse.status === 200) {
-				eventJSON = await eventResponse.json();
+				eventJSON = grid;
 				console.log("EVENT JSON:", eventJSON);
 			} else {
 				console.error(`Failed to update grid: ${eventURL}`);
@@ -650,8 +660,12 @@ class MixerService {
 		} catch (error) {
 			console.error(error);
 			alert("Failed to update grid.");
-			throw error;
+			// throw error;
 		}
+		if (eventJSON) {
+			return this.responseDataToVideoListing(eventJSON);
+		}
+		return [];
 	}
 
 	async getEvent() {
@@ -675,19 +689,13 @@ class MixerService {
 			// throw new Error(`Failed to load events: ${error.message}.`);
 		}
 
-		// TESTING;
-		if (!eventJSON) {
-			eventJSON = CANNED_4x4;
-		}
+		// TODO: TESTING;
+		// if (!eventJSON) {
+		// 	eventJSON = CANNED_4x4;
+		// }
 
 		if (eventJSON) {
-			const videoRoot = eventJSON.filter((type) => type.rootVideoNode);
-			const videoNodes = videoRoot ? videoRoot[0].rootVideoNode : null;
-			const videos =
-				videoNodes && videoNodes.nodes
-					? videoNodes.nodes.filter((node) => node.node === "VideoSourceNode")
-					: [];
-			return videos;
+			return this.responseDataToVideoListing(eventJSON);
 		}
 		return [];
 	}
