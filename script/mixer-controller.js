@@ -75,7 +75,7 @@ class MixerController {
 			if (control) {
 				control.checked = true;
 			}
-			console.log("[MIXER:manifest]:", this.videoManifest);
+			// console.log("[MIXER:manifest]:", this.videoManifest);
 
 			const subscriberConfig = {
 				protocol: isSecure ? "wss" : "ws",

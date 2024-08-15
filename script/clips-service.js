@@ -45,9 +45,9 @@ class ClipsService {
 		return [
 			{
 				name: "clip1",
-				filename: "midilights_v1.5_4k60fps.mp4",
-				streamGuid: "live/midilights_v1.5_4k60fps.flv",
-				url: "https://interstitial.red5pro.net/live/streams/midilights_v1.5_4k60fps.mp4",
+				filename: "hobbit_vp6.mp4",
+				streamGuid: "live/hobbit_vp6.flv",
+				url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
 			},
 			{
 				name: "clip2",
