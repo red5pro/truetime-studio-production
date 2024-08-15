@@ -24,8 +24,18 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 const AD_STREAMS = Object.freeze([
-	"midilights_v1.5_4k60fps.mp4",
-	"vid_bigbuckbunny.mp4",
+	{
+		name: "ad1",
+		filename: "hobbit_vp6.mp4",
+		streamGuid: "live/hobbit_vp6.flv",
+		url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
+	},
+	{
+		name: "ad1",
+		filename: "vid_bigbuckbunny.mp4",
+		streamGuid: "live/vid_bigbuckbunny.flv",
+		url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
+	},
 ]);
 
 class AdService {

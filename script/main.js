@@ -38,6 +38,7 @@ const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
 
 const NAME = "[Red5:IBC]";
+const CLIPS_POLL_INTERVAL = -1;
 const ipv4Pattern =
 	/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const hostIsIPv4 = (host) => ipv4Pattern.test(host);
@@ -72,10 +73,24 @@ const mixerConfiguration = {
 
 const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${baseConfiguration.host}:${baseConfiguration.port}`;
 const mixerEndpoint = `http${isMixerSecureHost ? "s" : ""}://${mixerConfiguration.host}:${mixerConfiguration.port}/brewmixer/1.0/${mixerConfiguration.eventName}`;
+
 const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
 const clipsService = new ClipsServiceImpl(serviceEndpoint);
 const mixerService = new MixerServiceImpl(mixerEndpoint);
 const adService = new AdServiceImpl(app);
+
+// Utility
+const getAppAndStream = (streamFileOrName) => {
+	let webapp = app;
+	let stream = streamFileOrName;
+	let streamIsGuid = streamFileOrName.includes("/");
+	if (streamIsGuid) {
+		const location = streamFileOrName.split("/");
+		stream = location.pop();
+		webapp = location.join("/");
+	}
+	return { app: webapp, streamName: stream };
+};
 
 // Source / Clips Toggle UI
 const sourceContainer = new SourceContainerImpl(
@@ -101,24 +116,24 @@ const previewContainer = new PreviewContainerImpl(
 	document.querySelector("#preview-button_ad"),
 );
 previewContainer.delegate = {
-	OnGoLive: ({ app, streamName, isLive, duration }) => {
-		service.switchToStream(
-			app,
-			isLive ? streamName : `${streamName.replace(".mp4", ".flv")}`,
+	OnGoLive: async ({ app, streamName, isLive, duration }) => {
+		const streamGuid = `${app}/${isLive ? streamName : `${streamName.replace(".mp4", ".flv")}`}`;
+		await service.switchToStream(
+			streamGuid,
 			isLive,
 			false,
 			isLive ? null : duration,
 		);
 	},
-	OnPlayAd: () => {
-		// TODO: Test
-		service.resume();
-		const streamFileOrName = adService.getNext();
-		service.switchToStream(
-			app,
-			`${streamFileOrName.replace(".mp4", ".flv")}`,
-			false,
-		);
+	OnPlayAd: async () => {
+		try {
+			await service.resume();
+		} catch (error) {
+			console.error(error);
+		}
+		const ad = adService.getNext();
+		const { streamGuid } = ad;
+		service.switchToStream(`${streamGuid.replace(".mp4", ".flv")}`, false);
 	},
 };
 
@@ -132,16 +147,9 @@ const mixerController = new MixerControllerImpl(
 	layoutControls,
 );
 mixerController.delegate = {
-	OnSourceSelection: (streamFileOrName, isLive) => {
-		let webapp = app;
-		let stream = streamFileOrName;
-		let streamIsGuid = streamFileOrName.includes("/");
-		if (streamIsGuid) {
-			const location = streamFileOrName.split("/");
-			stream = location.pop();
-			webapp = location.join("/");
-		}
-		previewContainer.preview(webapp, stream, isLive);
+	OnSourceSelection: (streamFileOrName) => {
+		const { app, streamName } = getAppAndStream(streamFileOrName);
+		previewContainer.preview(app, streamName, true);
 	},
 };
 
@@ -152,18 +160,10 @@ const clipsController = new ClipsControllerImpl(
 );
 clipsController.delegate = {
 	OnSelection: (streamFileOrName) => {
-		let webapp = app;
-		let stream = streamFileOrName;
-		let streamIsGuid = streamFileOrName.includes("/");
-		if (streamIsGuid) {
-			const location = streamFileOrName.split("/");
-			stream = location.pop();
-			webapp = location.join("/");
-		}
-		previewContainer.preview(webapp, stream, false);
+		const { app, streamName } = getAppAndStream(streamFileOrName);
+		previewContainer.preview(app, streamName, false);
 	},
 };
-clipsController.start();
 
 // Live Stream Playback
 const startLiveStream = async () => {
@@ -190,4 +190,9 @@ const startLiveStream = async () => {
 };
 
 // Start the live stream.
-startLiveStream();
+const main = async () => {
+	await startLiveStream();
+	await mixerController.start();
+	await clipsController.start(CLIPS_POLL_INTERVAL);
+};
+main();

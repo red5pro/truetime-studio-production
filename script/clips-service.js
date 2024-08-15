@@ -24,9 +24,62 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+const swapper = [
+	[
+		{
+			name: "clip1",
+			filename: "hobbit_vp6.mp4",
+			streamGuid: "live/hobbit_vp6.flv",
+			url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
+		},
+		{
+			name: "clip2",
+			filename: "vid_bigbuckbunny.mp4",
+			streamGuid: "live/vid_bigbuckbunny.flv",
+			url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
+		},
+		{
+			name: "clip3",
+			filename: "ChID-webinar.mp4",
+			streamGuid: "live/ChID-webinar.flv",
+			url: "https://interstitial.red5pro.net/live/streams/ChID-webinar.mp4",
+		},
+	],
+	[
+		{
+			name: "clip2",
+			filename: "vid_bigbuckbunny.mp4",
+			streamGuid: "live/vid_bigbuckbunny.flv",
+			url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
+		},
+		{
+			name: "clip1",
+			filename: "hobbit_vp6.mp4",
+			streamGuid: "live/hobbit_vp6.flv",
+			url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
+		},
+		{
+			name: "clip3",
+			filename: "ChID-webinar.mp4",
+			streamGuid: "live/ChID-webinar.flv",
+			url: "https://interstitial.red5pro.net/live/streams/ChID-webinar.mp4",
+		},
+	],
+	[
+		{
+			name: "clip3",
+			filename: "ChID-webinar.mp4",
+			streamGuid: "live/ChID-webinar.flv",
+			url: "https://interstitial.red5pro.net/live/streams/ChID-webinar.mp4",
+		},
+	],
+];
+
 class ClipsService {
 	endpoint = null;
 	delegate = null;
+
+	index = 0;
 
 	constructor(endpoint) {
 		this.endpoint = endpoint;
@@ -41,27 +94,8 @@ class ClipsService {
 		// }
 		// return [];
 
-		// TEST
-		return [
-			{
-				name: "clip1",
-				filename: "hobbit_vp6.mp4",
-				streamGuid: "live/hobbit_vp6.flv",
-				url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
-			},
-			{
-				name: "clip2",
-				filename: "vid_bigbuckbunny.mp4",
-				streamGuid: "live/vid_bigbuckbunny.flv",
-				url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
-			},
-			{
-				name: "clip3",
-				filename: "ChID-webinar.mp4",
-				streamGuid: "live/ChID-webinar.flv",
-				url: "https://interstitial.red5pro.net/live/streams/ChID-webinar.mp4",
-			},
-		];
+		// TODO: TEST
+		return swapper[this.index++ % swapper.length];
 	}
 }
 

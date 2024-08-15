@@ -60,8 +60,14 @@ class MixerController {
 				}
 			});
 		});
+	}
 
-		this.startMixerSubscription(mixerConfiguration);
+	async start() {
+		return this.startMixerSubscription(this.mixerConfiguration);
+	}
+
+	async stop() {
+		// TODO
 	}
 
 	async startMixerSubscription(mixerConfiguration) {

@@ -25,9 +25,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 const MAX_CLIPS = 9;
+const POLL_INTERVAL = 5000;
 
 class ClipsController {
 	service = null;
+	listing = null;
 	containerElement = null;
 	poll = null;
 	isStopped = true;
@@ -38,17 +40,16 @@ class ClipsController {
 		this.containerElement = containerElement;
 	}
 
-	start() {
+	start(interval = POLL_INTERVAL) {
 		this.isStopped = false;
-		// poll = setInterval(() => {
-		if (!this.isStopped) {
-			this.service.getClips().then((clips) => {
-				const endIndex = Math.min(MAX_CLIPS, clips.length);
-				const clamped = clips.slice(0, endIndex);
-				this.fill(clamped, this.containerElement);
-			});
+		if (interval > -1) {
+			poll = setInterval(() => {
+				if (!this.isStopped) {
+					this.getClips();
+				}
+			}, interval);
 		}
-		// }, 3000);
+		this.getClips();
 	}
 
 	stop() {
@@ -56,32 +57,74 @@ class ClipsController {
 		clearInterval(poll);
 	}
 
-	fill(clips, containerElement) {
-		// clear.
-		while (containerElement.firstChild) {
-			containerElement.removeChild(containerElement.firstChild);
-		}
-		// fill.
-		clips.forEach((clip) => {
-			const { filename, streamGuid, url } = clip;
-			const video = document.createElement("video");
-			video.src = url;
-			video.type = "video/mp4";
-			video.preload = "metadata";
-			video.draggable = true;
-			video.dataset.name = filename;
-			video.dataset.streamGuid = streamGuid;
-			video.addEventListener("click", (event) => {
-				this.delegate.OnSelection(filename);
-			});
-			video.addEventListener("dragstart", (event) => {
-				event.dataTransfer.setData(
-					"text/plain",
-					JSON.stringify({ ...clip, type: "clip" }),
-				);
-			});
-			containerElement.appendChild(video);
+	getClips() {
+		this.service.getClips().then((clips) => {
+			const endIndex = Math.min(MAX_CLIPS, clips.length);
+			const clamped = clips.slice(0, endIndex);
+			this.fill(clamped, this.containerElement);
 		});
+	}
+
+	createVideoElementFromClip(clip) {
+		const { filename, streamGuid, url } = clip;
+		const video = document.createElement("video");
+		video.src = url;
+		video.type = "video/mp4";
+		video.preload = "metadata";
+		video.draggable = true;
+		video.dataset.name = filename;
+		video.dataset.streamGuid = streamGuid;
+		video.addEventListener("click", (event) => {
+			this.delegate.OnSelection(filename);
+		});
+		video.addEventListener("dragstart", (event) => {
+			event.dataTransfer.setData(
+				"text/plain",
+				JSON.stringify({ ...clip, type: "clip" }),
+			);
+		});
+		return video;
+	}
+
+	fill(clips, containerElement) {
+		if (this.listing === null) {
+			// clear.
+			while (containerElement.firstChild) {
+				containerElement.removeChild(containerElement.firstChild);
+			}
+			// fill.
+			clips.forEach((clip) => {
+				const video = this.createVideoElementFromClip(clip);
+				containerElement.appendChild(video);
+			});
+		} else if (JSON.stringify(this.listing) != JSON.stringify(clips)) {
+			// clear.
+			const existing = [];
+			while (containerElement.firstChild) {
+				const video = containerElement.firstChild;
+				const { streamGuid } = video.dataset;
+				const found = clips.find((clip) => clip.streamGuid === streamGuid);
+				if (found) {
+					existing.push(video.cloneNode(true));
+				}
+				containerElement.removeChild(containerElement.firstChild);
+			}
+			// fill.
+			clips.forEach((clip, clipIndex) => {
+				let video = null;
+				let index = existing.findIndex(
+					(video) => video.dataset.streamGuid === clip.streamGuid,
+				);
+				if (index > -1) {
+					video = existing[index];
+					existing.splice(index, 1);
+				} else {
+					video = this.createVideoElementFromClip(clip);
+				}
+				containerElement.appendChild(video);
+			});
+		}
+		this.listing = clips;
 	}
 }
 

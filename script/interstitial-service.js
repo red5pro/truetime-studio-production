@@ -62,18 +62,10 @@ class InterstitialService {
 		this.url = `${endpoint}/${app}/interstitial`;
 	}
 
-	async switchToStream(
-		app,
-		streamOrFileName,
-		isLive,
-		loop = false,
-		duration = null,
-	) {
-		const toGuid = `${app}/${streamOrFileName}`;
-
-		if (toGuid === this.interstitialGuid) {
+	async switchToStream(streamGuid, isLive, loop = false, duration = null) {
+		if (streamGuid === this.interstitialGuid) {
 			return await this.resume();
-		} else if (toGuid === this.currentGuid) {
+		} else if (streamGuid === this.currentGuid) {
 			return true;
 		}
 
@@ -82,7 +74,7 @@ class InterstitialService {
 			...inserts[0],
 			...{
 				target: this.interstitialGuid,
-				interstitial: toGuid,
+				interstitial: streamGuid,
 				loop,
 				duration: duration ? Number(duration) : null,
 				type: isLive ? "INDEFINITE" : "STREAM_CLOCK",
@@ -104,7 +96,7 @@ class InterstitialService {
 				if (this.currentGuid && this.currentGuid !== this.interstitialGuid) {
 					await this.resume();
 				}
-				this.currentGuid = toGuid;
+				this.currentGuid = streamGuid;
 			}
 			return success;
 		} catch (error) {

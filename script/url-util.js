@@ -31,15 +31,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 const paramExclude = [];
 
 /**
- * Return flag indicating whether or not the query params include a host.
- * @returns {boolean} Whether or not the query params include a host.
- */
-export const hasHostDefined = () => {
-	const searchParams = new URLSearchParams(window.location.search);
-	return searchParams.has("host");
-};
-
-/**
  * Utility for parsing query params.
  * The following query parameters are supported:
  * - host: The Red5 Pro Server hostname on which the live streams are located.
@@ -54,7 +45,7 @@ export const query = () => {
 	const searchParams = new URLSearchParams(window.location.search);
 	let host = searchParams.get("host")
 		? decodeURIComponent(searchParams.get("host"))
-		: undefined;
+		: window.location.hostname;
 	let app = searchParams.get("app")
 		? decodeURIComponent(searchParams.get("app"))
 		: "live";
@@ -63,7 +54,7 @@ export const query = () => {
 		: "stream1";
 	let mixerHost = searchParams.get("mixer_host")
 		? decodeURIComponent(searchParams.get("mixer_host"))
-		: undefined;
+		: window.location.hostname;
 	let mixerEventName = searchParams.get("mixer_event_name")
 		? decodeURIComponent(searchParams.get("mixer_event_name"))
 		: "event1";
