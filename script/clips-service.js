@@ -46,19 +46,19 @@ class ClipsService {
 			{
 				name: "clip1",
 				filename: "midilights_v1.5_4k60fps.mp4",
-				streamGuid: "live/streams/midilights_v1.5_4k60fps.flv",
+				streamGuid: "live/midilights_v1.5_4k60fps.flv",
 				url: "https://interstitial.red5pro.net/live/streams/midilights_v1.5_4k60fps.mp4",
 			},
 			{
 				name: "clip2",
 				filename: "vid_bigbuckbunny.mp4",
-				streamGuid: "live/streams/vid_bigbuckbunny.flv",
+				streamGuid: "live/vid_bigbuckbunny.flv",
 				url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
 			},
 			{
 				name: "clip3",
 				filename: "ChID-webinar.mp4",
-				streamGuid: "live/streams/ChID-webinar.flv",
+				streamGuid: "live/ChID-webinar.flv",
 				url: "https://interstitial.red5pro.net/live/streams/ChID-webinar.mp4",
 			},
 		];

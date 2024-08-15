@@ -219,6 +219,7 @@ class PreviewContainer {
 
 	async updateClipPreview(app, streamFilename) {
 		const isHLS = streamFilename.includes(".m3u8");
+		const isFLV = streamFilename.includes(".flv");
 		const { host, protocol, port } = this.clipConfiguration;
 		const proto = protocol === "ws" ? "http" : "https";
 		const location = app.includes("/streams") ? app : `${app}/streams`;
@@ -231,7 +232,9 @@ class PreviewContainer {
 			});
 			this.hls = hls;
 		} else {
-			this.previewVideoClipElement.src = src;
+			this.previewVideoClipElement.src = isFLV
+				? src.replace(".flv", ".mp4")
+				: src;
 		}
 	}
 }
