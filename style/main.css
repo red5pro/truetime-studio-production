@@ -281,6 +281,7 @@ h1 {
 	flex-direction: row;
 	column-gap: 0px;
 	justify-content: end;
+	max-height: 180px;
 }
 
 #live-video {

@@ -33,9 +33,9 @@ const swapper = [
 		},
 		{
 			name: "clip2",
-			filename: "Clip_3.mp4",
-			streamGuid: "live/Clip_3.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_3.mp4",
+			filename: "vid_bigbuckbunny.mp4",
+			streamGuid: "live/vid_bigbuckbunny.flv",
+			url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
 		},
 		{
 			name: "clip3",
