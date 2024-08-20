@@ -652,7 +652,6 @@ class MixerService {
 			});
 			if (eventResponse.status === 200) {
 				eventJSON = grid;
-				console.log("EVENT JSON:", eventJSON);
 			} else {
 				console.error(`Failed to update grid: ${eventURL}`);
 				throw new Error("Failed update grid.");
@@ -679,7 +678,6 @@ class MixerService {
 			});
 			if (eventResponse.status === 200) {
 				eventJSON = await eventResponse.json();
-				console.log("EVENT JSON:", eventJSON);
 			} else {
 				console.error(`Failed to fetch event at: ${eventURL}`);
 				throw new Error("Failed to fetch event.");

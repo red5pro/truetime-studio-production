@@ -119,6 +119,7 @@ class PreviewContainer {
 	}
 
 	async preview(app, streamOrFileName, isLive) {
+		this.goLiveButton.disabled = true;
 		let complete = false;
 		this.clipDurationMS = null;
 		this.previewVideoLiveElement.classList.toggle("hidden", !isLive);
@@ -126,9 +127,13 @@ class PreviewContainer {
 		if (isLive) {
 			await this.unpreviewClip();
 			complete = await this.updateLivePreview(app, streamOrFileName);
+			this.goLiveButton.disabled = false;
+			this.goLiveButton.innerText = "Go Live";
 		} else {
 			await this.unpreviewLive();
 			complete = await this.updateClipPreview(app, streamOrFileName);
+			this.goLiveButton.disabled = false;
+			this.goLiveButton.innerText = "Play Clip";
 		}
 		this.previewState = {
 			app,
@@ -150,6 +155,7 @@ class PreviewContainer {
 			this.previewVideoLiveElement.classList.toggle("hidden", true);
 			this.previewVideoClipElement.classList.toggle("hidden", true);
 			this.previewState = null;
+			this.goLiveButton.disabled = true;
 		}
 	}
 

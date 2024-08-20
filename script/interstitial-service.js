@@ -29,7 +29,7 @@ const switchPayload = {
 	digest: "bar",
 	inserts: [
 		{
-			id: 1,
+			id: 0,
 			target: undefined,
 			interstitial: undefined,
 			loop: false,
@@ -49,7 +49,7 @@ const resumePayload = {
 };
 
 class InterstitialService {
-	insertId = 1;
+	insertId = 0;
 	url = "https://api.red5pro.com";
 	app = "live";
 	streamName = "streamName";

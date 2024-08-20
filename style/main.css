@@ -232,7 +232,7 @@ h1 {
 	row-gap: 10px;
 }
 
-#preview-button_live {
+.preview-button_live {
 	background-color: white;
 	color: black;
 }
@@ -319,6 +319,12 @@ button:hover {
 button:focus,
 button:focus-visible {
 	outline: unset;
+}
+
+button:disabled {
+	background-color: #636363;
+	color: #a0a0a0;
+	cursor: unset;
 }
 
 @media only screen and (max-width: 1024px) {

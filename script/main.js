@@ -79,6 +79,14 @@ const clipsService = new ClipsServiceImpl(serviceEndpoint);
 const mixerService = new MixerServiceImpl(mixerEndpoint);
 const adService = new AdServiceImpl(app);
 
+const stripTopLevelScope = (scope) => {
+	const parts = scope.split("/");
+	if (parts.length > 0 && parts[0] === app) {
+		parts.shift();
+	}
+	return parts.join("/");
+};
+
 // Utility
 const getAppAndStream = (streamFileOrName) => {
 	let webapp = app;
@@ -117,7 +125,11 @@ const previewContainer = new PreviewContainerImpl(
 );
 previewContainer.delegate = {
 	OnGoLive: async ({ app, streamName, isLive, duration }) => {
-		const streamGuid = `${app}/${isLive ? streamName : `${streamName.replace(".mp4", ".flv")}`}`;
+		let streamGuid = `${app}/${streamName}`;
+		if (!isLive) {
+			const path = stripTopLevelScope(app);
+			streamGuid = `${path.length > 0 ? `${path}/` : ""}${streamName.replace(".mp4", ".flv")}`;
+		}
 		await service.switchToStream(
 			streamGuid,
 			isLive,
