@@ -27,9 +27,9 @@ const swapper = [
 	[
 		{
 			name: "clip1",
-			filename: "Clip_1.mp4",
-			streamGuid: "live/Clip_1.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_1.mp4",
+			filename: "hobbit.mp4",
+			streamGuid: "live/hobbit.flv",
+			url: "https://interstitial.red5pro.net/live/streams/hobbit.mp4",
 		},
 		{
 			name: "clip2",

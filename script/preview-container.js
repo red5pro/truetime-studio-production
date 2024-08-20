@@ -125,15 +125,15 @@ class PreviewContainer {
 		this.previewVideoLiveElement.classList.toggle("hidden", !isLive);
 		this.previewVideoClipElement.classList.toggle("hidden", isLive);
 		if (isLive) {
+			this.goLiveButton.innerText = "Go Live";
 			await this.unpreviewClip();
 			complete = await this.updateLivePreview(app, streamOrFileName);
 			this.goLiveButton.disabled = false;
-			this.goLiveButton.innerText = "Go Live";
 		} else {
+			this.goLiveButton.innerText = "Play Clip";
 			await this.unpreviewLive();
 			complete = await this.updateClipPreview(app, streamOrFileName);
 			this.goLiveButton.disabled = false;
-			this.goLiveButton.innerText = "Play Clip";
 		}
 		this.previewState = {
 			app,
