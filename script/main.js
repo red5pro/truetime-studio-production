@@ -138,11 +138,6 @@ previewContainer.delegate = {
 		);
 	},
 	OnPlayAd: async () => {
-		try {
-			await service.resume();
-		} catch (error) {
-			console.error(error);
-		}
 		const ad = adService.getNext();
 		const { streamGuid } = ad;
 		await service.switchToStream(

@@ -24,17 +24,19 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 const AD_STREAMS = Object.freeze([
+	// {
+	// 	name: "ad1",
+	// 	filename: "hobbit.mp4",
+	// 	duration: 138600,
+	// 	streamGuid: "hobbit.flv",
+	// 	url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
+	// },
 	{
 		name: "ad1",
-		filename: "hobbit_vp6.mp4",
-		streamGuid: "live/hobbit_vp6.flv",
-		url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
-	},
-	{
-		name: "ad1",
-		filename: "vid_bigbuckbunny.mp4",
-		streamGuid: "live/vid_bigbuckbunny.flv",
-		url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
+		filename: "videon7-stlouis-broadcast-pro-top16d_x.mp4",
+		duration: 49000,
+		streamGuid: "videon7-stlouis-broadcast-pro-top16d_x.flv",
+		url: "https://interstitial.red5pro.net/live/streams/videon7-stlouis-broadcast-pro-top16d_x.mp4",
 	},
 ]);
 

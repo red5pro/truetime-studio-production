@@ -54,6 +54,7 @@ class InterstitialService {
 	app = "live";
 	streamName = "streamName";
 	interstitialGuid = "live/streamName";
+	previousLivePayload = null;
 	currentGuid = null;
 
 	constructor(endpoint, app, streamName) {
@@ -63,6 +64,33 @@ class InterstitialService {
 		this.url = `${endpoint}/${app}/interstitial`;
 	}
 
+	async queuePreviousLive(payload) {
+		try {
+			const { inserts } = payload;
+			const insert = {
+				...inserts[0],
+				...{
+					id: this.insertId++,
+					immediate: false,
+					// start: 0
+				},
+			};
+			const response = await fetch(this.url, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ ...payload, inserts: [insert] }),
+			});
+			const { status } = response;
+			return status >= 200 && status < 300;
+		} catch (error) {
+			console.error(error);
+			return false;
+		}
+	}
+
+	// If switching to a non-live stream, queue up the current one to resume after the interstitial.
 	async switchToStream(streamGuid, isLive, loop = false, duration = null) {
 		if (streamGuid === this.interstitialGuid) {
 			return await this.resume();
@@ -96,6 +124,14 @@ class InterstitialService {
 			const { status } = response;
 			const success = status >= 200 && status < 300;
 			if (success) {
+				// If we are a Clip/Ad, we want to push the last live interstitial to the queue for resuming.
+				if (!isLive && this.previousLivePayload) {
+					await this.queuePreviousLive(this.previousLivePayload);
+				}
+				// If we are a live stream, we want to store the payload for resuming after the interstitial.
+				if (isLive) {
+					this.previousLivePayload = payload;
+				}
 				this.currentGuid = streamGuid;
 			}
 			return success;
