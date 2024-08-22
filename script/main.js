@@ -145,7 +145,10 @@ previewContainer.delegate = {
 		}
 		const ad = adService.getNext();
 		const { streamGuid } = ad;
-		service.switchToStream(`${streamGuid.replace(".mp4", ".flv")}`, false);
+		await service.switchToStream(
+			`${streamGuid.replace(".mp4", ".flv")}`,
+			false,
+		);
 	},
 };
 

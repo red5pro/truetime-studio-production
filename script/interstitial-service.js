@@ -76,6 +76,7 @@ class InterstitialService {
 			...{
 				id: this.insertId++,
 				target: this.interstitialGuid,
+				immediate: true,
 				interstitial: streamGuid,
 				loop,
 				start: new Date().getTime(),
@@ -95,10 +96,6 @@ class InterstitialService {
 			const { status } = response;
 			const success = status >= 200 && status < 300;
 			if (success) {
-				// If we are switching to a new stream, we need to call resume to unload current stream.
-				if (this.currentGuid && this.currentGuid !== this.interstitialGuid) {
-					await this.resume();
-				}
 				this.currentGuid = streamGuid;
 			}
 			return success;
