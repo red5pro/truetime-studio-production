@@ -34,7 +34,7 @@ const AD_STREAMS = Object.freeze([
 	{
 		name: "ad1",
 		filename: "videon7-stlouis-broadcast-pro-top16d_x.mp4",
-		duration: 49000,
+		duration: 22000,
 		streamGuid: "videon7-stlouis-broadcast-pro-top16d_x.flv",
 		url: "https://interstitial.red5pro.net/live/streams/videon7-stlouis-broadcast-pro-top16d_x.mp4",
 	},

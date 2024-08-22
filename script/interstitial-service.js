@@ -55,7 +55,6 @@ class InterstitialService {
 	streamName = "streamName";
 	interstitialGuid = "live/streamName";
 	previousLivePayload = null;
-	currentGuid = null;
 
 	constructor(endpoint, app, streamName) {
 		this.app = app;
@@ -92,12 +91,6 @@ class InterstitialService {
 
 	// If switching to a non-live stream, queue up the current one to resume after the interstitial.
 	async switchToStream(streamGuid, isLive, loop = false, duration = null) {
-		if (streamGuid === this.interstitialGuid) {
-			return await this.resume();
-		} else if (streamGuid === this.currentGuid) {
-			return true;
-		}
-
 		const { inserts } = switchPayload;
 		const insert = {
 			...inserts[0],
@@ -132,7 +125,6 @@ class InterstitialService {
 				if (isLive) {
 					this.previousLivePayload = payload;
 				}
-				this.currentGuid = streamGuid;
 			}
 			return success;
 		} catch (error) {
@@ -143,7 +135,7 @@ class InterstitialService {
 
 	async resume() {
 		try {
-			this.currentGuid = null;
+			// this.previousLivePayload = null;
 			const response = await fetch(this.url, {
 				method: "POST",
 				headers: {

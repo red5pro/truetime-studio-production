@@ -107,9 +107,14 @@ const sourceContainer = new SourceContainerImpl(
 );
 
 // Simple Resume Button.
-const stopButton = document.querySelector("#ad-info-container_button");
-stopButton.addEventListener("click", () => {
+const adInfoContainer = document.querySelector("#ad-info-container");
+const adInfoContainerTime = document.querySelector("#ad-info-container_time");
+const adInfoContainerButton = document.querySelector(
+	"#ad-info-container_button",
+);
+adInfoContainerButton.addEventListener("click", () => {
 	service.resume();
+	stopCountDown();
 });
 
 // Preview Container for Source / Clips
@@ -130,20 +135,31 @@ previewContainer.delegate = {
 			const path = stripTopLevelScope(app);
 			streamGuid = `${path.length > 0 ? `${path}/` : ""}${streamName.replace(".mp4", ".flv")}`;
 		}
-		await service.switchToStream(
+		const success = await service.switchToStream(
 			streamGuid,
 			isLive,
 			false,
 			isLive ? null : duration,
 		);
+		// If successful switch, start countdown
+		if (success && !isNaN(duration)) {
+			startCountDown(duration);
+		} else {
+			stopCountDown();
+		}
 	},
 	OnPlayAd: async () => {
 		const ad = adService.getNext();
-		const { streamGuid } = ad;
-		await service.switchToStream(
+		const { streamGuid, duration } = ad;
+		const success = await service.switchToStream(
 			`${streamGuid.replace(".mp4", ".flv")}`,
 			false,
 		);
+		if (success && !isNaN(duration)) {
+			startCountDown(duration);
+		} else {
+			stopCountDown();
+		}
 	},
 };
 
@@ -173,6 +189,42 @@ clipsController.delegate = {
 		const { app, streamName } = getAppAndStream(streamFileOrName);
 		previewContainer.preview(app, streamName, false);
 	},
+};
+
+// Countdown
+let countdownInterval = 0;
+const formatTime = (seconds) => {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	// Pad minutes and seconds with leading zeros if they are less than 10
+	const formattedHours = hours > 0 ? `${hours}:` : "";
+	const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+	const formattedSeconds =
+		remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
+
+	return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
+};
+const startCountDown = (durationInMilliseconds) => {
+	clearInterval(countdownInterval);
+	if (durationInMilliseconds <= 0) {
+		return;
+	}
+	adInfoContainer.classList.toggle("hidden", false);
+	let seconds = Math.floor(durationInMilliseconds / 1000);
+	adInfoContainerTime.innerText = `${formatTime(seconds)}`;
+	countdownInterval = setInterval(() => {
+		seconds--;
+		adInfoContainerTime.innerText = `${formatTime(seconds)}`;
+		if (seconds <= 0) {
+			stopCountDown();
+		}
+	}, 1000);
+};
+const stopCountDown = () => {
+	clearInterval(countdownInterval);
+	adInfoContainer.classList.toggle("hidden", true);
 };
 
 // Live Stream Playback
