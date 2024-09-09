@@ -24,6 +24,10 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 /*global red5prosdk*/
+
+/**
+ * Main module entry for web application.
+ */
 import { query } from "./url-util.js";
 import AdServiceImpl, { AdStreams } from "./ad-service.js";
 import ClipsServiceImpl from "./clips-service.js";
@@ -37,7 +41,7 @@ import MixerControllerImpl from "./mixer-controller.js";
 const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
 
-const NAME = "[Red5:IBC]";
+const NAME = "[Red5]";
 const CLIPS_POLL_INTERVAL = 5000;
 const ipv4Pattern =
 	/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -79,6 +83,7 @@ const clipsService = new ClipsServiceImpl(serviceEndpoint, app, AdStreams);
 const mixerService = new MixerServiceImpl(mixerEndpoint);
 const adService = new AdServiceImpl(serviceEndpoint, app);
 
+// Utility
 const stripTopLevelScope = (scope) => {
 	const parts = scope.split("/");
 	if (parts.length > 0 && parts[0] === app) {
@@ -106,7 +111,7 @@ const sourceContainer = new SourceContainerImpl(
 	Array.from(document.querySelectorAll(".source-container_source")),
 );
 
-// Simple Resume Button.
+// Simple Resume Button on Clip/Ad Playback.
 const adInfoContainer = document.querySelector("#ad-info-container");
 const adInfoContainerTime = document.querySelector("#ad-info-container_time");
 const adInfoContainerButton = document.querySelector(
@@ -129,6 +134,7 @@ const previewContainer = new PreviewContainerImpl(
 	document.querySelector("#preview-button_ad"),
 );
 previewContainer.delegate = {
+	// Request to switch to either a live stream or a clip in the main feed.
 	OnGoLive: async ({ app, streamName, isLive, duration }) => {
 		let streamGuid = `${app}/${streamName}`;
 		if (!isLive) {
@@ -148,6 +154,7 @@ previewContainer.delegate = {
 			stopCountDown();
 		}
 	},
+	// Request to play an ad stream in the main feed.
 	OnPlayAd: async () => {
 		const ad = adService.getNext();
 		const { streamGuid, duration } = ad;
