@@ -687,11 +687,6 @@ class MixerService {
 			// throw new Error(`Failed to load events: ${error.message}.`);
 		}
 
-		// TODO: TESTING;
-		// if (!eventJSON) {
-		// 	eventJSON = CANNED_4x4;
-		// }
-
 		if (eventJSON) {
 			return this.responseDataToVideoListing(eventJSON);
 		}

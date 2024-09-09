@@ -24,7 +24,9 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 /* global red5prosdk */
+import { query } from "./url-util.js";
 import { getCoordinates } from "./coord-util.js";
+const { port, unsecurePort } = query();
 
 const MIXER_VIDEO_ELEMENT_ID = "mixer-video";
 
@@ -81,11 +83,10 @@ class MixerController {
 			if (control) {
 				control.checked = true;
 			}
-			// console.log("[MIXER:manifest]:", this.videoManifest);
 
 			const subscriberConfig = {
 				protocol: isSecure ? "wss" : "ws",
-				port: isSecure ? 443 : 5080,
+				port: isSecure ? port : unsecurePort,
 				host,
 				app,
 				streamName,
@@ -176,7 +177,6 @@ class MixerController {
 		const { offsetX, offsetY } = event;
 		const video = this.getVideoUnderPoint(offsetX, offsetY);
 		if (video) {
-			console.log("[MIXER:video]:", video);
 			this.selectSource(video.streamGuid, true);
 		}
 	}

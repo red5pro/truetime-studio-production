@@ -49,6 +49,12 @@ export const query = () => {
 	let app = searchParams.get("app")
 		? decodeURIComponent(searchParams.get("app"))
 		: "live";
+	let port = searchParams.get("port")
+		? decodeURIComponent(searchParams.get("port"))
+		: 443;
+	let unsecurePort = searchParams.get("unsecure_port")
+		? decodeURIComponent(searchParams.get("unsecure_port"))
+		: 5080;
 	let streamName = searchParams.get("streamName")
 		? decodeURIComponent(searchParams.get("streamName"))
 		: "stream1";
@@ -64,6 +70,8 @@ export const query = () => {
 	return {
 		host,
 		app,
+		port,
+		unsecurePort,
 		streamName,
 		mixerHost,
 		mixerEventName,

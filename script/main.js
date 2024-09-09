@@ -54,6 +54,8 @@ const {
 	mixerHost,
 	mixerEventName,
 	mixerStreamName,
+	port,
+	unsecurePort,
 	get,
 } = query();
 
@@ -63,14 +65,14 @@ const baseConfiguration = {
 	host,
 	app,
 	protocol: !isSecureHost ? "ws" : "wss",
-	port: !isSecureHost ? 5080 : 443,
+	port: !isSecureHost ? unsecurePort : port,
 };
 const mixerConfiguration = {
 	isSecure: isMixerSecureHost,
 	host: mixerHost,
 	app,
 	protocol: !isMixerSecureHost ? "ws" : "wss",
-	port: !isMixerSecureHost ? 5080 : 443,
+	port: !isMixerSecureHost ? unsecurePort : port,
 	eventName: mixerEventName,
 	streamName: mixerStreamName,
 };
