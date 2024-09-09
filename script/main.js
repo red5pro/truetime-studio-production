@@ -25,7 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 /*global red5prosdk*/
 import { query } from "./url-util.js";
-import AdServiceImpl from "./ad-service.js";
+import AdServiceImpl, { AdStreams } from "./ad-service.js";
 import ClipsServiceImpl from "./clips-service.js";
 import MixerServiceImpl from "./mixer-service.js";
 import InterstitialServiceImpl from "./interstitial-service.js";
@@ -38,7 +38,7 @@ const { setLogLevel, WHEPClient } = red5prosdk;
 setLogLevel("debug");
 
 const NAME = "[Red5:IBC]";
-const CLIPS_POLL_INTERVAL = -1;
+const CLIPS_POLL_INTERVAL = 5000;
 const ipv4Pattern =
 	/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const hostIsIPv4 = (host) => ipv4Pattern.test(host);
@@ -75,9 +75,9 @@ const serviceEndpoint = `http${isSecureHost ? "s" : ""}://${baseConfiguration.ho
 const mixerEndpoint = `http${isMixerSecureHost ? "s" : ""}://${mixerConfiguration.host}:${mixerConfiguration.port}/brewmixer/1.0/${mixerConfiguration.eventName}`;
 
 const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName);
-const clipsService = new ClipsServiceImpl(serviceEndpoint);
+const clipsService = new ClipsServiceImpl(serviceEndpoint, app, AdStreams);
 const mixerService = new MixerServiceImpl(mixerEndpoint);
-const adService = new AdServiceImpl(app);
+const adService = new AdServiceImpl(serviceEndpoint, app);
 
 const stripTopLevelScope = (scope) => {
 	const parts = scope.split("/");

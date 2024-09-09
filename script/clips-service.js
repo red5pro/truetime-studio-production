@@ -23,78 +23,57 @@ NONINFRINGEMENT.   IN  NO  EVENT  SHALL INFRARED5, INC. BE LIABLE FOR ANY CLAIM,
 WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT  OF  OR  IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-const swapper = [
-	[
-		{
-			name: "clip1",
-			filename: "hobbit.mp4",
-			streamGuid: "live/hobbit.flv",
-			url: "https://interstitial.red5pro.net/live/streams/hobbit.mp4",
-		},
-		{
-			name: "clip2",
-			filename: "vid_bigbuckbunny.mp4",
-			streamGuid: "live/vid_bigbuckbunny.flv",
-			url: "https://interstitial.red5pro.net/live/streams/vid_bigbuckbunny.mp4",
-		},
-		{
-			name: "clip3",
-			filename: "Clip_6.mp4",
-			streamGuid: "live/Clip_6.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_6.mp4",
-		},
-	],
-	[
-		{
-			name: "clip3",
-			filename: "Clip_6.mp4",
-			streamGuid: "live/Clip_6.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_6.mp4",
-		},
-		{
-			name: "clip1",
-			filename: "Clip_1.mp4",
-			streamGuid: "live/Clip_1.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_1.mp4",
-		},
-		{
-			name: "clip2",
-			filename: "Clip_3.mp4",
-			streamGuid: "live/Clip_3.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_3.mp4",
-		},
-	],
-	[
-		{
-			name: "clip3",
-			filename: "Clip_6.mp4",
-			streamGuid: "live/Clip_6.flv",
-			url: "https://interstitial.red5pro.net/live/streams/Clip_6.mp4",
-		},
-	],
-];
 
+/**
+ * NOTE: Requires simple `clips.jsp` file in the webapp directory of the Red5 Pro server.
+ */
 class ClipsService {
 	endpoint = null;
+	app = null;
+	url = null;
+	excludes = [];
 	delegate = null;
 
 	index = 0;
 
-	constructor(endpoint) {
+	constructor(endpoint, app, excludes = []) {
 		this.endpoint = endpoint;
+		this.app = app;
+		this.excludes = excludes;
+		this.url = `${endpoint}/${app}/clips.jsp`;
+	}
+
+	getClipUrl(filename) {
+		return `${this.endpoint}/${this.app}/${filename}`;
 	}
 
 	async getClips() {
-		// try {
-		// 	const response = await fetch(`${this.endpoint}/clips`);
-		// 	return await response.json();
-		// } catch (error) {
-		// 	console.error(error);
-		// }
-		// return [];
-
-		// TODO: TEST
-		return swapper[this.index++ % swapper.length];
+		let list = [];
+		try {
+			const response = await fetch(this.url);
+			const json = await response.json();
+			json.forEach((entry) => {
+				if (entry.endsWith(".mp4")) {
+					const filename = entry.substr(0, entry.lastIndexOf(".mp4"));
+					const exclusion = this.excludes.find(
+						(exclude) => exclude.name === filename,
+					);
+					if (!exclusion && json.indexOf(`${filename}.flv`) !== -1) {
+						const url = this.getClipUrl(entry);
+						const streamGuid = `${this.app}/${entry.replace(".mp4", ".flv")}`;
+						list.push({
+							name: filename,
+							filename: entry,
+							streamGuid,
+							url,
+						});
+					}
+				}
+			});
+		} catch (error) {
+			console.error(error);
+		}
+		return list;
 	}
 }
 

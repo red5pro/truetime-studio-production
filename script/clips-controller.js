@@ -38,12 +38,13 @@ class ClipsController {
 	constructor(service, containerElement) {
 		this.service = service;
 		this.containerElement = containerElement;
+		this.getClips();
 	}
 
 	start(interval = POLL_INTERVAL) {
 		this.isStopped = false;
 		if (interval > -1) {
-			poll = setInterval(() => {
+			this.poll = setInterval(() => {
 				if (!this.isStopped) {
 					this.getClips();
 				}
@@ -54,7 +55,7 @@ class ClipsController {
 
 	stop() {
 		this.isStopped = true;
-		clearInterval(poll);
+		clearInterval(this.poll);
 	}
 
 	getClips() {
@@ -68,7 +69,7 @@ class ClipsController {
 	createVideoElementFromClip(clip) {
 		const { filename, streamGuid, url } = clip;
 		const video = document.createElement("video");
-		video.src = url;
+		video.src = `${url}#t=1`;
 		video.type = "video/mp4";
 		video.preload = "metadata";
 		video.draggable = true;

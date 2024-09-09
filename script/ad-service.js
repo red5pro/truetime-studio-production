@@ -24,34 +24,59 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 const AD_STREAMS = Object.freeze([
-	// {
-	// 	name: "ad1",
-	// 	filename: "hobbit.mp4",
-	// 	duration: 138600,
-	// 	streamGuid: "hobbit.flv",
-	// 	url: "https://interstitial.red5pro.net/live/streams/hobbit_vp6.mp4",
-	// },
 	{
-		name: "ad1",
-		filename: "videon7-stlouis-broadcast-pro-top16d_x.mp4",
-		duration: 22000,
-		streamGuid: "videon7-stlouis-broadcast-pro-top16d_x.flv",
-		url: "https://interstitial.red5pro.net/live/streams/videon7-stlouis-broadcast-pro-top16d_x.mp4",
+		name: "Honda_CBR600rr_1280x720_h264",
+		filename: "Honda_CBR600rr_1280x720_h264.mp4",
+		duration: 74000,
+		streamGuid: "Honda_CBR600rr_1280x720_h264.flv",
+		url: "https://<endpoint>/<app>/streams/Honda_CBR600rr_1280x720_h264.mp4",
+	},
+	{
+		name: "LIV_Golf_1280x720_h264",
+		filename: "LIV_Golf_1280x720_h264.mp4",
+		duration: 43000,
+		streamGuid: "LIV_Golf_1280x720_h264.flv",
+		url: "https://<endpoint>/<app>/streams/LIV_Golf_1280x720_h264.mp4",
+	},
+	{
+		name: "Toyota_Tacoma_1280x720_h264",
+		filename: "Toyota_Tacoma_1280x720_h264.mp4",
+		duration: 90000,
+		streamGuid: "Toyota_Tacoma_1280x720_h264.flv",
+		url: "https://<endpoint>/<app>/streams/Toyota_Tacoma_1280x720_h264.mp4",
+	},
+	{
+		name: "WaveRunner_Ad_1280x720_h264",
+		filename: "WaveRunner_Ad_1280x720_h264.mp4",
+		duration: 75000,
+		streamGuid: "WaveRunner_Ad_1280x720_h264.flv",
+		url: "https://<endpoint>/<app>/streams/WaveRunner_Ad_1280x720_h264.mp4",
 	},
 ]);
 
 class AdService {
 	index = 0;
-	app = "live";
+	endpoint = null;
+	app = null;
 
-	constructor(app) {
+	constructor(endpoint, app) {
+		this.endpoint = endpoint;
 		this.app = app;
+	}
+
+	getUrl(url) {
+		return url.replace("<endpoint>", this.endpoint).replace("<app>", this.app);
 	}
 
 	getNext() {
 		this.index = (this.index + 1) % AD_STREAMS.length;
-		return AD_STREAMS[this.index];
+		const ad = AD_STREAMS[this.index];
+		return {
+			...ad,
+			url: this.getUrl(ad.url),
+		};
 	}
 }
 
+export { AD_STREAMS as AdStreams };
 export default AdService;
