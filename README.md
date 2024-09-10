@@ -10,10 +10,34 @@ Along with being able to select a single live stream to deliver from several con
 
 > For more information about the single stream of multiple live streams, please refer to the [Red5 TrueTime MultiView for Production](https://github.com/red5pro/truetime-production).
 
+- [Running Locally](#running-locally)
 - [Project Structure](#project-structure)
 - [Usage](#usage)
   - [Query Params](#query-params)
-- [Examples](#example-usage-with-query-params)
+- [Examples](#example-usage)
+
+# Running Locally
+
+This project was setup using [Vite](https://vitejs.dev/).
+
+```sh
+npm install
+npm run dev
+```
+
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173) in your favorite browser.
+
+## Build
+
+To build the project, issue the following (after having already run `npm install`):
+
+```sh
+npm run build
+```
+
+This will generate the built files in a `dist` directory.
+
+> Note: It is not necessary to build the project. This repository can be deployed and accessed from a web browser without generating minified content.
 
 # Project Structure
 
@@ -89,7 +113,65 @@ Once loaded with the proper configurations you will be able to view a grid of mi
 
 The following query parameters are available. Though _optional_, it is recommended to use in order to properly configure your TrueTime MultiView session.
 
-| Param Name |       Default Value        | Description                                                          |
-| :--------- | :------------------------: | :------------------------------------------------------------------- |
-| `host`     | `window.location.hostname` | The Red5 Pro Server endpoint that hosts the live streams. _The FQDN_ |
-| `app`      |           `live`           | The webapp context on which the live streams reside.                 |
+| Param Name          |       Default Value        | Description                                                                                                                                  |
+| :------------------ | :------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| `host`              | `window.location.hostname` | The Red5 Pro Server endpoint that hosts the live streams. _The FQDN_                                                                         |
+| `app`               |           `live`           | The webapp context on which the live streams reside.                                                                                         |
+| `port`              |           `443`            | The port to use if the web application is delivered over SSL.                                                                                |
+| `unsecure_port`     |           `5080`           | The port to use if the web application is _not_ delivered over SSL.                                                                          |
+| `streamName`        |         `stream1`          | The main stream name feed to be used as the Interstitial that other live and pre-recorded streams will be inserted into during live playback |
+| `mixer_host`        | `window.location.hostname` | The endpoint URL that the BrewMixer webapp resides on. _The FQDN_                                                                            |
+| `mixer_event_name`  |          `event1`          | The event name form the BrewMixer to subscribe to and interact with                                                                          |
+| `mixer_stream_name` |           `mix1`           | The stream name of the single stream output from the BrewMixer                                                                               |
+
+# Example Usage
+
+## Requirements
+
+The TrueTime example utilizes the following additional features available for Red5:
+
+- Interstitial Plugin [read the documentation](https://www.red5.net/docs/special/interstitial/server-configuration/)
+- BrewMixer webapp [read the documentation](https://www.red5.net/docs/red5-pro/users-guide/mixer/brew-mixer-overview/)
+
+These will both need to be properly configured in order to use this web application example, preferrably on the same machine as the Interstitial switching requires streams to be available from the same location.
+
+> Additionally, if you are deploying the web application example on another server other than the Red5 deployment, ensure that it is served over SSL and that CORS is properly enabled for the Red5 server and its webapps.
+
+## Query Params
+
+Assuming we have deployed out web application at `https://myappserver.com`, and that our Red5 deployment with BrewMixer and Interstitial is enabled at `myred5server.com`:
+
+```sh
+https://myappserver.com/?host=myred5server.com&app=live&mixer_host=myred5server.com&mixer_event=event1&mixer_stream_name=mix1&streamName=stream1
+```
+
+Using the above query params, we are telling the web application that:
+
+- Our Red5 Server that we want to consume the stream `stream1` as the Interstitial is available at `https://myred5server.com`
+- The target webapp that all streams to insert into the Interstitial reside in the webapp named `live` (default)
+- The BrewMixer webapp is running on `https://myred5server.com` and currently is broadcasting a mixed stream of streams associated with `event1` out to a single stream named `mix1`
+
+## Clips
+
+The `ClipsService` of the web application assumes that the `server/clips.jsp` script is installed in the `live` webapp of the target Red5 server deployment. The `clips.jsp` is a simple script that will return a listing of all MP4 and FLV files in the `streams` directory of the webapp (e.g., `live`).
+
+The `ClipsService` will parse this list and create a manifest of clips it considers available for Interstitial insertion. The rules for this manifest creation are:
+
+- There is a pairing of MP4 and FLV files sharing the same filename (with different extensions)
+  - The reason for the pairing: only MP4 can be played back in the browser. FLV is used for intersititial insertiion.
+- The structure of each entry in the manifest will have the following schema:
+
+```json
+{
+  "name": "<filename without extension>",
+  "filename": "<the MP4 file with extension>",
+  "streamGuid: "${app}/${name}.flv",
+  "url": "${endpoint}/${app}/${name}.mp4"
+}
+```
+
+The `streamGuid` will be used in requesting Interstitial insertion of the live stream, while the `url` will be used as the `src` for the `video` element on the page to preview the Clip.
+
+## Ads
+
+The `AdsService` provides a canned listing - with same schema as described in previous section - of Ad files to be used for Interstitial insertion. Its canned listing is filtered out of those for the Clips Service.
