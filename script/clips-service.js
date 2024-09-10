@@ -44,7 +44,7 @@ class ClipsService {
 	}
 
 	getClipUrl(filename) {
-		return `${this.endpoint}/${this.app}/${filename}`;
+		return `${this.endpoint}/${this.app}/streams/${filename}`;
 	}
 
 	async getClips() {
