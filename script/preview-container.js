@@ -72,6 +72,7 @@ class PreviewContainer {
 		this.goLiveButton = goLiveButton;
 		this.playAdButton = playAdButton;
 
+		// Simple handlers.
 		this.goLiveButton.addEventListener("click", () => {
 			this.goLive();
 		});
@@ -79,13 +80,14 @@ class PreviewContainer {
 			this.playAd();
 		});
 
+		// Set up the clip duration for previews.
 		this.previewVideoClipElement.onloadedmetadata = () => {
 			const { duration } = this.previewVideoClipElement;
 			// HTML Video duration is in seconds, convert to milliseconds
 			this.clipDurationMS = Math.floor(duration * 1000);
-			console.log("[CLIP:length]", this.previewVideoClipElement.duration);
 		};
 
+		// Set up drag and drop for previewing streams.
 		this.dropElements.forEach((element) => {
 			element.addEventListener("dragover", (event) => {
 				event.preventDefault();
@@ -105,6 +107,10 @@ class PreviewContainer {
 		});
 	}
 
+	/**
+	 * Subscribe event handler.
+	 * @param {*} event
+	 */
 	onSubscriberEvent(event) {
 		const { type } = event;
 		if (type !== "Subscribe.Time.Update") {
@@ -112,6 +118,9 @@ class PreviewContainer {
 		}
 	}
 
+	/**
+	 * Forward request to go live to delegate and unpreview.
+	 */
 	async goLive() {
 		if (this.previewState) {
 			try {
@@ -128,12 +137,22 @@ class PreviewContainer {
 		}
 	}
 
+	/**
+	 * Forward request to play ad to delegate.
+	 */
 	async playAd() {
 		if (this.delegate) {
 			this.delegate.OnPlayAd();
 		}
 	}
 
+	/**
+	 * Add a preview of a stream to the container.
+	 * @param {string} app The webapp scope.
+	 * @param {string} streamOrFileName The stream name or file name.
+	 * @param {boolean} isLive Flag of stream being live.
+	 * @returns {boolean} Flag of completion.
+	 */
 	async preview(app, streamOrFileName, isLive) {
 		this.goLiveButton.disabled = true;
 		let complete = false;
@@ -160,6 +179,9 @@ class PreviewContainer {
 		return complete;
 	}
 
+	/**
+	 * Remove the preview from the container.
+	 */
 	async unpreview() {
 		if (this.previewState) {
 			const { app, streamName, isLive } = this.previewState;
@@ -175,6 +197,10 @@ class PreviewContainer {
 		}
 	}
 
+	/**
+	 * Unsubscribes from live stream playback.
+	 * @returns {boolean} Flag of completion.
+	 */
 	async unpreviewLive() {
 		if (this.subscriber) {
 			try {
@@ -188,6 +214,9 @@ class PreviewContainer {
 		return true;
 	}
 
+	/**
+	 * Unloads and stops clip stream playback.
+	 */
 	async unpreviewClip() {
 		try {
 			if (this.hls) {
@@ -203,6 +232,12 @@ class PreviewContainer {
 		this.previewVideoClipElement.src = "";
 	}
 
+	/**
+	 * Request to update the current live stream preview. Utitlizes the SwitchStreams API.
+	 * @param {string} app The webapp scope.
+	 * @param {string} streamName The name of the live stream.
+	 * @returns {boolean} Flag of completion.
+	 */
 	async updateLivePreview(app, streamName) {
 		if (this.subscriber) {
 			try {
@@ -239,6 +274,11 @@ class PreviewContainer {
 		return true;
 	}
 
+	/**
+	 * Updates the current clip stream preview with the provided stream filename.
+	 * @param {string} app The webapp scope.
+	 * @param {string} streamFilename The name of the clip stream.
+	 */
 	async updateClipPreview(app, streamFilename) {
 		const isHLS = streamFilename.includes(".m3u8");
 		const isFLV = streamFilename.includes(".flv");

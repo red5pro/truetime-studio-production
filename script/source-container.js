@@ -29,10 +29,18 @@ const SourceSection = Object.freeze({
 	CLIPS: "clips",
 });
 
+/**
+ * The SourceContainer is responsible for toggling between the Source and Clips displays in the UI.
+ */
 class SourceContainer {
 	sourceButtons = [];
 	sourceContainers = [];
 
+	/**
+	 * Constructor.
+	 * @param {[HTMLElement]} sourceButtons The button elements that affect display of target container.
+	 * @param {[HTMLElement]} sourceContainers The target container elements to toggle in the UI.
+	 */
 	constructor(sourceButtons, sourceContainers) {
 		this.sourceButtons = sourceButtons;
 		this.sourceContainers = sourceContainers;
@@ -46,6 +54,10 @@ class SourceContainer {
 		});
 	}
 
+	/**
+	 * Updates the selected container to display in the UI.
+	 * @param {SourceSelection} selection
+	 */
 	selectSourceSection(selection) {
 		switch (selection) {
 			case SourceSection.SOURCES:
