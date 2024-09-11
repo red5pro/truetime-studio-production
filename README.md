@@ -4,6 +4,8 @@
 
 # Red5 TrueTime Studio for Production
 
+![Red5 TrueTime Studio for Production](docs/splash.png)
+
 The Red5 TrueTime Studio for Production is a web-based application for broadcasting content providers that provides an interface to preview multiple live streams delivered in a single stream from the [Red5 TrueTime Multiview for Production](https://github.com/red5pro/truetime-production) technology to deliver Interstitial streams to multiple end-users with sub-400ms latency.
 
 Along with being able to select a single live stream to deliver from several concurrent live streams, the web-based application allows for pre-recorded Clip and Ad insertion during a live stream. Once either a Clip or Ad has finished, the stream will return to the previously selected live stream.
@@ -136,6 +138,22 @@ The TrueTime Studio for Production example utilizes the following additional fea
 These will both need to be properly configured in order to use this web application example, preferrably on the same machine as the Interstitial switching requires streams to be available from the same location.
 
 > Additionally, if you are deploying the web application example on another server other than the Red5 deployment, ensure that it is served over SSL and that CORS is properly enabled for the Red5 server and its webapps.
+
+**NOTE**
+
+In order to properly access the canned listing of Clips and Ads from the `streams` directory of the webapp scope, you may also need to modify some of the settings for access.
+
+For instance, to allow access to such files/streams, you may need to remove the following security restriction from `webapps/root/WEB-INF/web.xml`:
+
+```xml
+<security-constraint>
+    <web-resource-collection>
+        <web-resource-name>Forbidden</web-resource-name>
+        <url-pattern>/streams/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint />
+</security-constraint>
+```
 
 ## Query Params
 

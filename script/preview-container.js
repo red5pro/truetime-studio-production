@@ -25,6 +25,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 /* global red5prosdk, Hls */
 const { WHEPClient } = red5prosdk;
+
+/**
+ * Preview Container is responsible for managing the preview of live and clip streams.
+ *
+ * Note: If looking for HLS playback support, it is recommended to use the Hls.js library in the index.html file.
+ */
 class PreviewContainer {
 	subscriber = null;
 	liveConfiguration = null;
@@ -39,6 +45,16 @@ class PreviewContainer {
 	hls = null;
 	delegate = null; // OnGoLive, OnPlayAd
 
+	/**
+	 * Constructor.
+	 * @param {object} liveConfiguration Init configuration for the live streams.
+	 * @param {object} clipConfiguration Init configuration for the clip streams.
+	 * @param {[HTMLEelment]} dropElements List of elements to enable drag and drop for previewing streams.
+	 * @param {HTMLElement} previewVideoLiveElement Container element of the live stream preview.
+	 * @param {HTMLElement} previewVideoClipElement Container element of the clip stream preview.
+	 * @param {HTMLElement} goLiveButton Button to go live.
+	 * @param {HTMLElement} playAdButton Button to play an ad.
+	 */
 	constructor(
 		liveConfiguration,
 		clipConfiguration,
@@ -230,7 +246,7 @@ class PreviewContainer {
 		const proto = protocol === "ws" ? "http" : "https";
 		const location = app.includes("/streams") ? app : `${app}/streams`;
 		const src = `${proto}://${host}:${port}/${location}/${streamFilename}`;
-		if (isHLS) {
+		if (isHLS && Hls) {
 			const hls = new Hls({ debug: true, backBufferLength: 0 });
 			hls.attachMedia(this.previewVideoClipElement);
 			hls.on(Hls.Events.MEDIA_ATTACHED, () => {

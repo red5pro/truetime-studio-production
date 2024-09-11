@@ -27,6 +27,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 const MAX_CLIPS = 9;
 const POLL_INTERVAL = 5000;
 
+/**
+ * The ClipsController is responsible for managing the display of clips.
+ */
 class ClipsController {
 	service = null;
 	listing = null;
@@ -35,12 +38,21 @@ class ClipsController {
 	isStopped = true;
 	delegate = null; // { OnSelection }
 
+	/**
+	 * Constructor.
+	 * @param {ClipsService} service
+	 * @param {HTMLElement} containerElement Container element to manager and display clips.
+	 */
 	constructor(service, containerElement) {
 		this.service = service;
 		this.containerElement = containerElement;
 		this.getClips();
 	}
 
+	/**
+	 * Start the request process for clips. This is run at the interval specified in order to get the latest clips.
+	 * @param {number} interval In Milliseconds.
+	 */
 	start(interval = POLL_INTERVAL) {
 		this.isStopped = false;
 		if (interval > -1) {
@@ -53,11 +65,17 @@ class ClipsController {
 		this.getClips();
 	}
 
+	/**
+	 * Clear the interval for polling.
+	 */
 	stop() {
 		this.isStopped = true;
 		clearInterval(this.poll);
 	}
 
+	/**
+	 * Request to get the clips from the service and fill the container element.
+	 */
 	getClips() {
 		this.service.getClips().then((clips) => {
 			const endIndex = Math.min(MAX_CLIPS, clips.length);
@@ -66,6 +84,11 @@ class ClipsController {
 		});
 	}
 
+	/**
+	 * Video Element Factory.
+	 * @param {object} clip Clip object.
+	 * @returns HTMLVideoElement
+	 */
 	createVideoElementFromClip(clip) {
 		const { filename, streamGuid, url } = clip;
 		const video = document.createElement("video");
@@ -87,6 +110,11 @@ class ClipsController {
 		return video;
 	}
 
+	/**
+	 * Fill the container element with the clip elements.
+	 * @param {[object]} clips List of clips.
+	 * @param {HTMLElement} containerElement HTML Element to fill with clips.
+	 */
 	fill(clips, containerElement) {
 		if (this.listing === null) {
 			// clear.

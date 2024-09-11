@@ -23,6 +23,8 @@ NONINFRINGEMENT.   IN  NO  EVENT  SHALL INFRARED5, INC. BE LIABLE FOR ANY CLAIM,
 WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT  OF  OR  IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
+// Canned Grid layout schemas >
 const CANNED_2x2 = [
 	{
 		rootVideoNode: {
@@ -611,13 +613,27 @@ const CANNED_4x4 = [
 	},
 ];
 
+// > Canned Grid layout schemas.
+
+/**
+ * MixerService is responisible for integrating with the BrewMixer API.
+ */
 class MixerService {
 	endpoint = null;
 
+	/**
+	 * Constructor.
+	 * @param {string} endpoint
+	 */
 	constructor(endpoint) {
 		this.endpoint = endpoint;
 	}
 
+	/**
+	 * Constructs a video listing from the response of service.
+	 * @param {[object]} responseData
+	 * @returns [object]
+	 */
 	responseDataToVideoListing(responseData) {
 		const videoRoot = responseData.filter((type) => type.rootVideoNode);
 		const videoNodes = videoRoot ? videoRoot[0].rootVideoNode : null;
@@ -628,6 +644,11 @@ class MixerService {
 		return videos;
 	}
 
+	/**
+	 * Request to update the grid layout of the mixed stream and return list of videos in grid.
+	 * @param {number} columns
+	 * @returns [object]
+	 */
 	async updateGrid(columns) {
 		let eventJSON = null;
 		try {
@@ -667,6 +688,10 @@ class MixerService {
 		return [];
 	}
 
+	/**
+	 * Request to get the data related to the event.
+	 * @returns [object]
+	 */
 	async getEvent() {
 		let eventJSON = null;
 		try {

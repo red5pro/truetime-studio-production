@@ -24,6 +24,9 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Payload Schema to use for switching streams.
+ */
 const switchPayload = {
 	user: "foo",
 	digest: "bar",
@@ -42,6 +45,9 @@ const switchPayload = {
 	],
 };
 
+/**
+ * Payload Schema to use for resuming a stream.
+ */
 const resumePayload = {
 	user: "foo",
 	digest: "bar",
@@ -56,6 +62,12 @@ class InterstitialService {
 	interstitialGuid = "live/streamName";
 	previousLivePayload = null;
 
+	/**
+	 * Constructor.
+	 * @param {string} endpoint Service base endpoint including protocol and port.
+	 * @param {string} app Webapp scope name (e.g., `live`).
+	 * @param {string} streamName Name of the Interstitial stream to start insert streams.
+	 */
 	constructor(endpoint, app, streamName) {
 		this.app = app;
 		this.streamName = streamName;
@@ -63,6 +75,11 @@ class InterstitialService {
 		this.url = `${endpoint}/${app}/interstitial`;
 	}
 
+	/**
+	 * Queues previous live stream to resume after the interstitial.
+	 * @param {object} payload delta payload to queue.
+	 * @returns Promise<boolean> Success of the operation.
+	 */
 	async queuePreviousLive(payload) {
 		try {
 			const { inserts } = payload;
@@ -89,8 +106,16 @@ class InterstitialService {
 		}
 	}
 
-	// If switching to a non-live stream, queue up the current one to resume after the interstitial.
+	/**
+	 * Request to switch interstitial stream.
+	 * @param {string} streamGuid The stream GUID to switch to (e.g., `live/stream2`).
+	 * @param {boolean} isLive If the stream is a live stream.
+	 * @param {boolean} loop (optional) If the stream should loop.
+	 * @param {number} duration (optional) Duration of the stream in milliseconds.
+	 * @returns Promise<boolean> Success of the operation.
+	 */
 	async switchToStream(streamGuid, isLive, loop = false, duration = null) {
+		// If switching to a non-live stream, queue up the current one to resume after the interstitial.
 		const { inserts } = switchPayload;
 		const insert = {
 			...inserts[0],
@@ -133,6 +158,10 @@ class InterstitialService {
 		}
 	}
 
+	/**
+	 * Request to resume the previous live stream on intersitial.
+	 * @returns Promise<boolean> Success of the operation.
+	 */
 	async resume() {
 		try {
 			// this.previousLivePayload = null;

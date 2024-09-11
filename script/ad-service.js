@@ -23,6 +23,9 @@ NONINFRINGEMENT.   IN  NO  EVENT  SHALL INFRARED5, INC. BE LIABLE FOR ANY CLAIM,
 WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT  OF  OR  IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+/**
+ * List of canned streams available in `live/streams` directory.
+ */
 const AD_STREAMS = Object.freeze([
 	{
 		name: "Honda_CBR600rr_1280x720_h264",
@@ -61,20 +64,37 @@ const AD_STREAMS = Object.freeze([
 	},
 ]);
 
+/**
+ * The AdService is responsible for managing the list of available ads and cycling through upon request.
+ */
 class AdService {
 	index = 0;
 	endpoint = null;
 	app = null;
 
+	/**
+	 * Constructor.
+	 * @param {string} endpoint Endpoint for streams including protocol and port.
+	 * @param {string} app Webapp scope name (e.g., `live`).
+	 */
 	constructor(endpoint, app) {
 		this.endpoint = endpoint;
 		this.app = app;
 	}
 
+	/**
+	 * Constructs the full URL for the ad.
+	 * @param {string} url
+	 * @returns string
+	 */
 	getUrl(url) {
 		return url.replace("<endpoint>", this.endpoint).replace("<app>", this.app);
 	}
 
+	/**
+	 * Requests the next ad in list, cycles back if reached the end of list.
+	 * @returns {object} The next ad in the list.
+	 */
 	getNext() {
 		this.index = (this.index + 1) % AD_STREAMS.length;
 		const ad = AD_STREAMS[this.index];

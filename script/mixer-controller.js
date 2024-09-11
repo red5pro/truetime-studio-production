@@ -30,6 +30,9 @@ const { port, unsecurePort } = query();
 
 const MIXER_VIDEO_ELEMENT_ID = "mixer-video";
 
+/**
+ * Mixer Controller is responsible for managing the Mixer service and the video grid.
+ */
 class MixerController {
 	mixerService = null;
 	mixerConfiguration = null;
@@ -37,13 +40,20 @@ class MixerController {
 	videoManifest = null;
 	delegate = null;
 
+	/**
+	 * Constructor
+	 * @param {MixerService} mixerService Mixer service instance.
+	 * @param {object} mixerConfiguration Init configuration for the Mixer stream.
+	 * @param {[HTMLElement]} layoutControls List of radio buttons for layout selection.
+	 */
 	constructor(mixerService, mixerConfiguration, layoutControls) {
 		this.mixerService = mixerService;
 		this.mixerConfiguration = mixerConfiguration;
 		this.layoutControls = layoutControls;
 
+		// Enable drag and drop.
 		this.setUpDragDrop();
-
+		// Enable layout selection which integrates with MixerService.
 		layoutControls.forEach((control) => {
 			control.addEventListener("click", async (event) => {
 				const { target } = event;
@@ -64,14 +74,24 @@ class MixerController {
 		});
 	}
 
+	/**
+	 * Request to start the Mixer service and playback.
+	 */
 	async start() {
 		return this.startMixerSubscription(this.mixerConfiguration);
 	}
 
+	/**
+	 * Request to stop the Mixer service and playback.
+	 */
 	async stop() {
 		// TODO
 	}
 
+	/**
+	 * Starts the Mixer service and playback.
+	 * @param {object} mixerConfiguration Init configuration for the Mixer stream.
+	 */
 	async startMixerSubscription(mixerConfiguration) {
 		const { isSecure, host, app, streamName } = mixerConfiguration;
 		try {
@@ -83,7 +103,7 @@ class MixerController {
 			if (control) {
 				control.checked = true;
 			}
-
+			// Red5 HTML SDK configuration.
 			const subscriberConfig = {
 				protocol: isSecure ? "wss" : "ws",
 				port: isSecure ? port : unsecurePort,
@@ -98,6 +118,11 @@ class MixerController {
 		}
 	}
 
+	/**
+	 * Starts the Mixer playback.
+	 * @param {object} subscriberConfig Init configuration for the Mixer stream.
+	 * @param {string} mediaElementId ID of the video element to playback the Mixer stream.
+	 */
 	async startMixerPlayback(subscriberConfig, mediaElementId) {
 		try {
 			const { WHEPClient } = red5prosdk;
@@ -132,6 +157,10 @@ class MixerController {
 		}
 	}
 
+	/**
+	 * Recalculates the coordinates of the video grid to determine drag-and-drop and click events.
+	 * @returns Object
+	 */
 	recalculateCoordinates() {
 		const mixerVideo = document.getElementById(MIXER_VIDEO_ELEMENT_ID);
 		const { clientWidth, clientHeight } = mixerVideo;
@@ -153,6 +182,12 @@ class MixerController {
 		};
 	}
 
+	/**
+	 * Locates the target video under the point of the click event from the grid of videos.
+	 * @param {int} x
+	 * @param {int} y
+	 * @returns Object
+	 */
 	getVideoUnderPoint(x, y) {
 		const coordinates = this.recalculateCoordinates();
 		console.log("[MIXER:coordinates]:", coordinates);
@@ -173,6 +208,10 @@ class MixerController {
 		return video;
 	}
 
+	/**
+	 * Select the video under the point of the click event.
+	 * @param {*} event
+	 */
 	handleMixerClick(event) {
 		const { offsetX, offsetY } = event;
 		const video = this.getVideoUnderPoint(offsetX, offsetY);
@@ -181,6 +220,9 @@ class MixerController {
 		}
 	}
 
+	/**
+	 * Sets up the drag-and-drop functionality for the Mixer video.
+	 */
 	setUpDragDrop() {
 		const mixerVideo = document.getElementById(MIXER_VIDEO_ELEMENT_ID);
 		mixerVideo.addEventListener("dragstart", (event) => {
@@ -200,6 +242,11 @@ class MixerController {
 		});
 	}
 
+	/**
+	 * Notifies the delegate of the selected source.
+	 * @param {object} item The video object from the mixer source manifest.
+	 * @param {boolean} isLive
+	 */
 	selectSource(item, isLive) {
 		if (this.delegate) {
 			this.delegate.OnSourceSelection(item, isLive);

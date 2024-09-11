@@ -25,6 +25,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /**
+ * ClipsService is responsible for accessing and returning a list of clips available on the Red5 server.
+ * Clips are recognized as pairings of one MP4 and one FLV file with the same filename (and different extensions, as result).
+ * The reason for the pairing is that browsers do not support FLV playback, but is used for interstitials.
+ *
  * NOTE: Requires simple `clips.jsp` file in the webapp directory of the Red5 Pro server.
  */
 class ClipsService {
@@ -36,6 +40,12 @@ class ClipsService {
 
 	index = 0;
 
+	/**
+	 * Constructor.
+	 * @param {string} endpoint Service base endpoint including protocol and port.
+	 * @param {string} app Webapp scope name (e.g., `live`)
+	 * @param {[object]} excludes A list of objects to exclude from the clips list. (For example, any Ad files.)
+	 */
 	constructor(endpoint, app, excludes = []) {
 		this.endpoint = endpoint;
 		this.app = app;
@@ -43,15 +53,25 @@ class ClipsService {
 		this.url = `${endpoint}/${app}/clips.jsp`;
 	}
 
+	/**
+	 * Constructs the URL for a given clip filename (with extension).
+	 * @param {string} filename
+	 * @returns string
+	 */
 	getClipUrl(filename) {
 		return `${this.endpoint}/${this.app}/streams/${filename}`;
 	}
 
+	/**
+	 * Request to get the latest list of clips available on the server.
+	 * @returns {Promise<[object]>} List of clips available on the server.
+	 */
 	async getClips() {
 		let list = [];
 		try {
 			const response = await fetch(this.url);
 			const json = await response.json();
+			// Logic to pair MP4 and FLV files that share same filename.
 			json.forEach((entry) => {
 				if (entry.endsWith(".mp4")) {
 					const filename = entry.substr(0, entry.lastIndexOf(".mp4"));
