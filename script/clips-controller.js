@@ -24,137 +24,136 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-const MAX_CLIPS = 9;
-const POLL_INTERVAL = 5000;
+const MAX_CLIPS = 9
+const POLL_INTERVAL = 5000
 
 /**
  * The ClipsController is responsible for managing the display of clips.
  */
 class ClipsController {
-	service = null;
-	listing = null;
-	containerElement = null;
-	poll = null;
-	isStopped = true;
-	delegate = null; // { OnSelection }
+  service = null
+  listing = null
+  containerElement = null
+  poll = null
+  isStopped = true
+  delegate = null // { OnSelection }
 
-	/**
-	 * Constructor.
-	 * @param {ClipsService} service
-	 * @param {HTMLElement} containerElement Container element to manager and display clips.
-	 */
-	constructor(service, containerElement) {
-		this.service = service;
-		this.containerElement = containerElement;
-		this.getClips();
-	}
+  /**
+   * Constructor.
+   * @param {ClipsService} service
+   * @param {HTMLElement} containerElement Container element to manager and display clips.
+   */
+  constructor(service, containerElement) {
+    this.service = service
+    this.containerElement = containerElement
+  }
 
-	/**
-	 * Start the request process for clips. This is run at the interval specified in order to get the latest clips.
-	 * @param {number} interval In Milliseconds.
-	 */
-	start(interval = POLL_INTERVAL) {
-		this.isStopped = false;
-		if (interval > -1) {
-			this.poll = setInterval(() => {
-				if (!this.isStopped) {
-					this.getClips();
-				}
-			}, interval);
-		}
-		this.getClips();
-	}
+  /**
+   * Start the request process for clips. This is run at the interval specified in order to get the latest clips.
+   * @param {number} interval In Milliseconds.
+   */
+  start(interval = POLL_INTERVAL) {
+    this.isStopped = false
+    if (interval > -1) {
+      this.poll = setInterval(() => {
+        if (!this.isStopped) {
+          this.getClips()
+        }
+      }, interval)
+    }
+    this.getClips()
+  }
 
-	/**
-	 * Clear the interval for polling.
-	 */
-	stop() {
-		this.isStopped = true;
-		clearInterval(this.poll);
-	}
+  /**
+   * Clear the interval for polling.
+   */
+  stop() {
+    this.isStopped = true
+    clearInterval(this.poll)
+  }
 
-	/**
-	 * Request to get the clips from the service and fill the container element.
-	 */
-	getClips() {
-		this.service.getClips().then((clips) => {
-			const endIndex = Math.min(MAX_CLIPS, clips.length);
-			const clamped = clips.slice(0, endIndex);
-			this.fill(clamped, this.containerElement);
-		});
-	}
+  /**
+   * Request to get the clips from the service and fill the container element.
+   */
+  getClips() {
+    this.service.getClips().then(clips => {
+      const endIndex = Math.min(MAX_CLIPS, clips.length)
+      const clamped = clips.slice(0, endIndex)
+      this.fill(clamped, this.containerElement)
+    })
+  }
 
-	/**
-	 * Video Element Factory.
-	 * @param {object} clip Clip object.
-	 * @returns HTMLVideoElement
-	 */
-	createVideoElementFromClip(clip) {
-		const { filename, streamGuid, url } = clip;
-		const video = document.createElement("video");
-		video.src = `${url}#t=1`;
-		video.type = "video/mp4";
-		video.preload = "metadata";
-		video.draggable = true;
-		video.dataset.name = filename;
-		video.dataset.streamGuid = streamGuid;
-		video.addEventListener("click", (event) => {
-			this.delegate.OnSelection(filename);
-		});
-		video.addEventListener("dragstart", (event) => {
-			event.dataTransfer.setData(
-				"text/plain",
-				JSON.stringify({ ...clip, type: "clip" }),
-			);
-		});
-		return video;
-	}
+  /**
+   * Video Element Factory.
+   * @param {object} clip Clip object.
+   * @returns HTMLVideoElement
+   */
+  createVideoElementFromClip(clip) {
+    const { filename, streamGuid, url } = clip
+    const video = document.createElement('video')
+    video.src = `${url}#t=1`
+    video.type = 'video/mp4'
+    video.preload = 'metadata'
+    video.draggable = true
+    video.dataset.name = filename
+    video.dataset.streamGuid = streamGuid
+    video.addEventListener('click', event => {
+      this.delegate.OnSelection(filename)
+    })
+    video.addEventListener('dragstart', event => {
+      event.dataTransfer.setData(
+        'text/plain',
+        JSON.stringify({ ...clip, type: 'clip' })
+      )
+    })
+    return video
+  }
 
-	/**
-	 * Fill the container element with the clip elements.
-	 * @param {[object]} clips List of clips.
-	 * @param {HTMLElement} containerElement HTML Element to fill with clips.
-	 */
-	fill(clips, containerElement) {
-		if (this.listing === null) {
-			// clear.
-			while (containerElement.firstChild) {
-				containerElement.removeChild(containerElement.firstChild);
-			}
-			// fill.
-			clips.forEach((clip) => {
-				const video = this.createVideoElementFromClip(clip);
-				containerElement.appendChild(video);
-			});
-		} else if (JSON.stringify(this.listing) != JSON.stringify(clips)) {
-			// clear.
-			const existing = [];
-			while (containerElement.firstChild) {
-				const video = containerElement.firstChild;
-				const { streamGuid } = video.dataset;
-				const found = clips.find((clip) => clip.streamGuid === streamGuid);
-				if (found) {
-					existing.push(video.cloneNode(true));
-				}
-				containerElement.removeChild(containerElement.firstChild);
-			}
-			// fill.
-			clips.forEach((clip, clipIndex) => {
-				let video = null;
-				let index = existing.findIndex(
-					(video) => video.dataset.streamGuid === clip.streamGuid,
-				);
-				if (index > -1) {
-					video = existing[index];
-					existing.splice(index, 1);
-				} else {
-					video = this.createVideoElementFromClip(clip);
-				}
-				containerElement.appendChild(video);
-			});
-		}
-		this.listing = clips;
-	}
+  /**
+   * Fill the container element with the clip elements.
+   * @param {[object]} clips List of clips.
+   * @param {HTMLElement} containerElement HTML Element to fill with clips.
+   */
+  fill(clips, containerElement) {
+    if (this.listing === null) {
+      // clear.
+      while (containerElement.firstChild) {
+        containerElement.removeChild(containerElement.firstChild)
+      }
+      // fill.
+      clips.forEach(clip => {
+        const video = this.createVideoElementFromClip(clip)
+        containerElement.appendChild(video)
+      })
+    } else if (JSON.stringify(this.listing) != JSON.stringify(clips)) {
+      // clear.
+      const existing = []
+      while (containerElement.firstChild) {
+        const video = containerElement.firstChild
+        const { streamGuid } = video.dataset
+        const found = clips.find(clip => clip.streamGuid === streamGuid)
+        if (found) {
+          existing.push(video.cloneNode(true))
+        }
+        containerElement.removeChild(containerElement.firstChild)
+      }
+      // fill.
+      clips.forEach((clip, clipIndex) => {
+        let video = null
+        let index = existing.findIndex(
+          video => video.dataset.streamGuid === clip.streamGuid
+        )
+        if (index > -1) {
+          video = existing[index]
+          existing.splice(index, 1)
+        } else {
+          video = this.createVideoElementFromClip(clip)
+        }
+        containerElement.appendChild(video)
+      })
+    }
+    this.listing = clips
+  }
 }
 
-export default ClipsController;
+export default ClipsController

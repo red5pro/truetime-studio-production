@@ -86,32 +86,32 @@ const getProxyWhepEndpoint = (endpoint, app, streamName) => {
 }
 let serviceEndpoint = `http${isSecureHost ? 's' : ''}://${baseConfiguration.host}:${baseConfiguration.port}`
 let mixerEndpoint = `http${isMixerSecureHost ? 's' : ''}://${mixerConfiguration.host}:${mixerConfiguration.port}/brewmixer/1.0/${mixerConfiguration.eventName}`
+let interstitialEndpoint = `${serviceEndpoint}/${baseConfiguration.app}/interstitial`
 let authentication = null
 
-// https://todd-sm2-1-oci.red5pro.net/as/v1/streams/mixer/todd-oem/sourceOne
-if (useStreamManager) {
-  baseConfiguration.endpoint = getProxyWhepEndpoint(
-    baseConfiguration.host,
-    app,
-    streamName
-  )
-  mixerConfiguration.endpoint = getProxyWhepEndpoint(
-    mixerConfiguration.host,
-    app,
-    mixerStreamName
-  )
-  mixerEndpoint = `https://${mixerConfiguration.host}/as/v1/streams/mixer/${nodeGroup}/${mixerConfiguration.eventName}`
-  authentication = {
-    endpoint: `https://${baseConfiguration.host}/as/v1/auth/login`,
-    username: smUsername,
-    password: smPassword
-  }
-}
+// Services
+let service = null // Interstitial Service
+let clipsService = null // Clips Service
+let mixerService = null // Mixer Service
+let adService = null // Ad Service
 
-const service = new InterstitialServiceImpl(serviceEndpoint, app, streamName)
-const clipsService = new ClipsServiceImpl(serviceEndpoint, app, AdStreams)
-const mixerService = new MixerServiceImpl(mixerEndpoint, authentication)
-const adService = new AdServiceImpl(serviceEndpoint, app)
+// Controllers
+let previewContainer = null // Preview Container
+let mixerController = null // Mixer Controller
+let clipsController = null // Clips Controller
+
+const getOriginForStream = async (nodeGroup, app, streamName) => {
+  const response = await fetch(
+    `${serviceEndpoint}/as/v1/streams/stream/${nodeGroup}/stream/${app}/${streamName}?aggregate=false`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+  return response.json()
+}
 
 // Utility
 const stripTopLevelScope = scope => {
@@ -154,79 +154,10 @@ adInfoContainerButton.addEventListener('click', () => {
 
 // Preview Container for Source / Clips
 const droppables = Array.from(document.querySelectorAll('.video-droppable'))
-const previewContainer = new PreviewContainerImpl(
-  mixerConfiguration,
-  baseConfiguration,
-  droppables,
-  document.querySelector('#preview-video_live_element'),
-  document.querySelector('#preview-video_clip_element'),
-  document.querySelector('#preview-button_live'),
-  document.querySelector('#preview-button_ad')
-)
-previewContainer.delegate = {
-  // Request to switch to either a live stream or a clip in the main feed.
-  OnGoLive: async ({ app, streamName, isLive, duration }) => {
-    let streamGuid = `${app}/${streamName}`
-    if (!isLive) {
-      const path = stripTopLevelScope(app)
-      streamGuid = `${path.length > 0 ? `${path}/` : ''}${streamName.replace('.mp4', '.flv')}`
-    }
-    const success = await service.switchToStream(
-      streamGuid,
-      isLive,
-      false,
-      isLive ? null : duration
-    )
-    // If successful switch, start countdown
-    if (success && !isNaN(duration)) {
-      startCountDown(duration)
-    } else {
-      stopCountDown()
-    }
-  },
-  // Request to play an ad stream in the main feed.
-  OnPlayAd: async () => {
-    const ad = adService.getNext()
-    const { streamGuid, duration } = ad
-    const success = await service.switchToStream(
-      `${streamGuid.replace('.mp4', '.flv')}`,
-      false
-    )
-    if (success && !isNaN(duration)) {
-      startCountDown(duration)
-    } else {
-      stopCountDown()
-    }
-  }
-}
-
 // Mixer Controller
 const layoutControls = Array.from(
   document.querySelectorAll('input[name="layout"]')
 )
-const mixerController = new MixerControllerImpl(
-  mixerService,
-  mixerConfiguration,
-  layoutControls
-)
-mixerController.delegate = {
-  OnSourceSelection: streamFileOrName => {
-    const { app, streamName } = getAppAndStream(streamFileOrName)
-    previewContainer.preview(app, streamName, true)
-  }
-}
-
-// Clips Controller
-const clipsController = new ClipsControllerImpl(
-  clipsService,
-  document.querySelector('#clips-video-container')
-)
-clipsController.delegate = {
-  OnSelection: streamFileOrName => {
-    const { app, streamName } = getAppAndStream(streamFileOrName)
-    previewContainer.preview(app, streamName, false)
-  }
-}
 
 // Countdown
 let countdownInterval = 0
@@ -288,8 +219,113 @@ const startLiveStream = async () => {
   }
 }
 
+const setUpServices = async () => {
+  if (useStreamManager) {
+    baseConfiguration.endpoint = getProxyWhepEndpoint(
+      baseConfiguration.host,
+      app,
+      streamName
+    )
+    mixerConfiguration.endpoint = getProxyWhepEndpoint(
+      mixerConfiguration.host,
+      app,
+      mixerStreamName
+    )
+    mixerEndpoint = `https://${mixerConfiguration.host}/as/v1/streams/mixer/${nodeGroup}/${mixerConfiguration.eventName}`
+    authentication = {
+      endpoint: `https://${baseConfiguration.host}/as/v1/auth/login`,
+      username: smUsername,
+      password: smPassword
+    }
+    const result = await getOriginForStream(nodeGroup, app, mixerStreamName)
+    const origin = result.find(n => n.nodeRole.toLowerCase() === 'origin')
+    const { serverAddress } = origin
+    interstitialEndpoint = `${serviceEndpoint}/as/v1/proxy/forward/?target=http%3A%2F%2F${serverAddress}%3A5080%2F${app}%2Finterstitial`
+  }
+  service = new InterstitialServiceImpl(interstitialEndpoint, app, streamName)
+  clipsService = new ClipsServiceImpl(serviceEndpoint, app, AdStreams)
+  mixerService = new MixerServiceImpl(mixerEndpoint, authentication)
+  adService = new AdServiceImpl(serviceEndpoint, app)
+}
+
+const setUpControllers = async () => {
+  // Preview Container
+  previewContainer = new PreviewContainerImpl(
+    mixerConfiguration,
+    baseConfiguration,
+    droppables,
+    document.querySelector('#preview-video_live_element'),
+    document.querySelector('#preview-video_clip_element'),
+    document.querySelector('#preview-button_live'),
+    document.querySelector('#preview-button_ad')
+  )
+  previewContainer.delegate = {
+    // Request to switch to either a live stream or a clip in the main feed.
+    OnGoLive: async ({ app, streamName, isLive, duration }) => {
+      let streamGuid = `${app}/${streamName}`
+      if (!isLive) {
+        const path = stripTopLevelScope(app)
+        streamGuid = `${path.length > 0 ? `${path}/` : ''}${streamName.replace('.mp4', '.flv')}`
+      }
+      const success = await service.switchToStream(
+        streamGuid,
+        isLive,
+        false,
+        isLive ? null : duration
+      )
+      // If successful switch, start countdown
+      if (success && !isNaN(duration)) {
+        startCountDown(duration)
+      } else {
+        stopCountDown()
+      }
+    },
+    // Request to play an ad stream in the main feed.
+    OnPlayAd: async () => {
+      const ad = adService.getNext()
+      const { streamGuid, duration } = ad
+      const success = await service.switchToStream(
+        `${streamGuid.replace('.mp4', '.flv')}`,
+        false
+      )
+      if (success && !isNaN(duration)) {
+        startCountDown(duration)
+      } else {
+        stopCountDown()
+      }
+    }
+  }
+
+  // Mixer Controller
+  mixerController = new MixerControllerImpl(
+    mixerService,
+    mixerConfiguration,
+    layoutControls
+  )
+  mixerController.delegate = {
+    OnSourceSelection: streamFileOrName => {
+      const { app, streamName } = getAppAndStream(streamFileOrName)
+      previewContainer.preview(app, streamName, true)
+    }
+  }
+
+  // Clips Controller
+  clipsController = new ClipsControllerImpl(
+    clipsService,
+    document.querySelector('#clips-video-container')
+  )
+  clipsController.delegate = {
+    OnSelection: streamFileOrName => {
+      const { app, streamName } = getAppAndStream(streamFileOrName)
+      previewContainer.preview(app, streamName, false)
+    }
+  }
+}
+
 // Start the live stream.
 const main = async () => {
+  await setUpServices()
+  await setUpControllers()
   await startLiveStream()
   await mixerController.start()
   await clipsController.start(CLIPS_POLL_INTERVAL)
