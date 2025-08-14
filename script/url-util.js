@@ -28,7 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * Utility for parsing query params.
  */
 
-const paramExclude = [];
+const paramExclude = []
 
 /**
  * Utility for parsing query params.
@@ -42,42 +42,58 @@ const paramExclude = [];
  * @returns {object} Object containing the query params.
  */
 export const query = () => {
-	const searchParams = new URLSearchParams(window.location.search);
-	let host = searchParams.get("host")
-		? decodeURIComponent(searchParams.get("host"))
-		: window.location.hostname;
-	let app = searchParams.get("app")
-		? decodeURIComponent(searchParams.get("app"))
-		: "live";
-	let port = searchParams.get("port")
-		? decodeURIComponent(searchParams.get("port"))
-		: 443;
-	let unsecurePort = searchParams.get("unsecure_port")
-		? decodeURIComponent(searchParams.get("unsecure_port"))
-		: 5080;
-	let streamName = searchParams.get("streamName")
-		? decodeURIComponent(searchParams.get("streamName"))
-		: "stream1";
-	let mixerHost = searchParams.get("mixer_host")
-		? decodeURIComponent(searchParams.get("mixer_host"))
-		: window.location.hostname;
-	let mixerEventName = searchParams.get("mixer_event_name")
-		? decodeURIComponent(searchParams.get("mixer_event_name"))
-		: "event1";
-	let mixerStreamName = searchParams.get("mixer_stream_name")
-		? decodeURIComponent(searchParams.get("mixer_stream_name"))
-		: "mix1";
-	return {
-		host,
-		app,
-		port,
-		unsecurePort,
-		streamName,
-		mixerHost,
-		mixerEventName,
-		mixerStreamName,
-		get: (key) => {
-			return searchParams.get(key);
-		},
-	};
-};
+  const searchParams = new URLSearchParams(window.location.search)
+  let host = searchParams.get('host')
+    ? decodeURIComponent(searchParams.get('host'))
+    : window.location.hostname
+  let app = searchParams.get('app')
+    ? decodeURIComponent(searchParams.get('app'))
+    : 'live'
+  let port = searchParams.get('port')
+    ? decodeURIComponent(searchParams.get('port'))
+    : 443
+  let unsecurePort = searchParams.get('unsecure_port')
+    ? decodeURIComponent(searchParams.get('unsecure_port'))
+    : 5080
+  let streamName = searchParams.get('streamName')
+    ? decodeURIComponent(searchParams.get('streamName'))
+    : 'stream1'
+  let mixerHost = searchParams.get('mixer_host')
+    ? decodeURIComponent(searchParams.get('mixer_host'))
+    : window.location.hostname
+  let mixerEventName = searchParams.get('mixer_event_name')
+    ? decodeURIComponent(searchParams.get('mixer_event_name'))
+    : 'event1'
+  let mixerStreamName = searchParams.get('mixer_stream_name')
+    ? decodeURIComponent(searchParams.get('mixer_stream_name'))
+    : 'mix1'
+  let useStreamManager = searchParams.get('sm')
+    ? searchParams.get('sm') === 'true'
+    : false
+  let nodeGroup = searchParams.get('node_group')
+    ? decodeURIComponent(searchParams.get('node_group'))
+    : 'default'
+  let smUsername = searchParams.get('sm_username')
+    ? decodeURIComponent(searchParams.get('sm_username'))
+    : 'admin'
+  let smPassword = searchParams.get('sm_password')
+    ? decodeURIComponent(searchParams.get('sm_password'))
+    : 'xyz123'
+  return {
+    host,
+    app,
+    port,
+    unsecurePort,
+    streamName,
+    mixerHost,
+    mixerEventName,
+    mixerStreamName,
+    useStreamManager,
+    nodeGroup,
+    smUsername,
+    smPassword,
+    get: key => {
+      return searchParams.get(key)
+    }
+  }
+}
