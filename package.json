@@ -1,12 +1,13 @@
 {
   "name": "ibc-demo",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postbuild": "build/copy_assets.sh"
   },
   "devDependencies": {
     "eslint": "^9.8.0",
