@@ -125,6 +125,10 @@ The following query parameters are available. Though _optional_, it is recommend
 | `mixer_host`        | `window.location.hostname` | The endpoint URL that the BrewMixer webapp resides on. _The FQDN_                                                                            |
 | `mixer_event_name`  |          `event1`          | The event name form the BrewMixer to subscribe to and interact with                                                                          |
 | `mixer_stream_name` |           `mix1`           | The stream name of the single stream output from the BrewMixer                                                                               |
+| `sm` | `false` | Flag of endpoint hosts being served from Stream Manager 2.0 |
+| `node_group` | `undefined` | If `sm=true`, the target Node Group to use in operations |
+| `sm_username` | `undefined` | If `sm=true`, the admin username to use in operations |
+| `sm_password` | `undefined` | If `sm=true`, the admin password to use in operations |
 
 # Example Usage
 
