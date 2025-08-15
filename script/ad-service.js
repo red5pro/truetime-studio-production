@@ -27,83 +27,83 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * List of canned streams available in `live/streams` directory.
  */
 const AD_STREAMS = Object.freeze([
-	{
-		name: "Honda_CBR600rr_1280x720_h264",
-		filename: "Honda_CBR600rr_1280x720_h264.mp4",
-		duration: 74000,
-		streamGuid: "Honda_CBR600rr_1280x720_h264.flv",
-		url: "<endpoint>/<app>/streams/Honda_CBR600rr_1280x720_h264.mp4",
-	},
-	{
-		name: "LIV_Golf_1280x720_h264",
-		filename: "LIV_Golf_1280x720_h264.mp4",
-		duration: 43000,
-		streamGuid: "LIV_Golf_1280x720_h264.flv",
-		url: "<endpoint>/<app>/streams/LIV_Golf_1280x720_h264.mp4",
-	},
-	{
-		name: "Toyota_Tacoma_1280x720_h264",
-		filename: "Toyota_Tacoma_1280x720_h264.mp4",
-		duration: 90000,
-		streamGuid: "Toyota_Tacoma_1280x720_h264.flv",
-		url: "<endpoint>/<app>/streams/Toyota_Tacoma_1280x720_h264.mp4",
-	},
-	{
-		name: "WaveRunner_Ad_1280x720_h264",
-		filename: "WaveRunner_Ad_1280x720_h264.mp4",
-		duration: 75000,
-		streamGuid: "WaveRunner_Ad_1280x720_h264.flv",
-		url: "<endpoint>/<app>/streams/WaveRunner_Ad_1280x720_h264.mp4",
-	},
-	{
-		name: "TorkHub_Ad",
-		filename: "TorkHub_Ad.mp4",
-		duration: 49000,
-		streamGuid: "TorkHub_Ad.flv",
-		url: "<endpoint>/<app>/streams/TorkHub_Ad.mp4",
-	},
-]);
+  {
+    name: 'Honda_CBR600rr_1280x720_h264',
+    filename: 'Honda_CBR600rr_1280x720_h264.mp4',
+    duration: 74000,
+    streamGuid: 'Honda_CBR600rr_1280x720_h264.flv',
+    url: '<endpoint>/<app>/streams/Honda_CBR600rr_1280x720_h264.mp4'
+  },
+  {
+    name: 'LIV_Golf_1280x720_h264',
+    filename: 'LIV_Golf_1280x720_h264.mp4',
+    duration: 43000,
+    streamGuid: 'LIV_Golf_1280x720_h264.flv',
+    url: '<endpoint>/<app>/streams/LIV_Golf_1280x720_h264.mp4'
+  }
+  // {
+  // 	name: "Toyota_Tacoma_1280x720_h264",
+  // 	filename: "Toyota_Tacoma_1280x720_h264.mp4",
+  // 	duration: 90000,
+  // 	streamGuid: "Toyota_Tacoma_1280x720_h264.flv",
+  // 	url: "<endpoint>/<app>/streams/Toyota_Tacoma_1280x720_h264.mp4",
+  // },
+  // {
+  // 	name: "WaveRunner_Ad_1280x720_h264",
+  // 	filename: "WaveRunner_Ad_1280x720_h264.mp4",
+  // 	duration: 75000,
+  // 	streamGuid: "WaveRunner_Ad_1280x720_h264.flv",
+  // 	url: "<endpoint>/<app>/streams/WaveRunner_Ad_1280x720_h264.mp4",
+  // },
+  // {
+  // 	name: "TorkHub_Ad",
+  // 	filename: "TorkHub_Ad.mp4",
+  // 	duration: 49000,
+  // 	streamGuid: "TorkHub_Ad.flv",
+  // 	url: "<endpoint>/<app>/streams/TorkHub_Ad.mp4",
+  // },
+])
 
 /**
  * The AdService is responsible for managing the list of available ads and cycling through upon request.
  */
 class AdService {
-	index = 0;
-	endpoint = null;
-	app = null;
+  index = 0
+  endpoint = null
+  app = null
 
-	/**
-	 * Constructor.
-	 * @param {string} endpoint Endpoint for streams including protocol and port.
-	 * @param {string} app Webapp scope name (e.g., `live`).
-	 */
-	constructor(endpoint, app) {
-		this.endpoint = endpoint;
-		this.app = app;
-	}
+  /**
+   * Constructor.
+   * @param {string} endpoint Endpoint for streams including protocol and port.
+   * @param {string} app Webapp scope name (e.g., `live`).
+   */
+  constructor(endpoint, app) {
+    this.endpoint = endpoint
+    this.app = app
+  }
 
-	/**
-	 * Constructs the full URL for the ad.
-	 * @param {string} url
-	 * @returns string
-	 */
-	getUrl(url) {
-		return url.replace("<endpoint>", this.endpoint).replace("<app>", this.app);
-	}
+  /**
+   * Constructs the full URL for the ad.
+   * @param {string} url
+   * @returns string
+   */
+  getUrl(url) {
+    return url.replace('<endpoint>', this.endpoint).replace('<app>', this.app)
+  }
 
-	/**
-	 * Requests the next ad in list, cycles back if reached the end of list.
-	 * @returns {object} The next ad in the list.
-	 */
-	getNext() {
-		this.index = (this.index + 1) % AD_STREAMS.length;
-		const ad = AD_STREAMS[this.index];
-		return {
-			...ad,
-			url: this.getUrl(ad.url),
-		};
-	}
+  /**
+   * Requests the next ad in list, cycles back if reached the end of list.
+   * @returns {object} The next ad in the list.
+   */
+  getNext() {
+    this.index = (this.index + 1) % AD_STREAMS.length
+    const ad = AD_STREAMS[this.index]
+    return {
+      ...ad,
+      url: this.getUrl(ad.url)
+    }
+  }
 }
 
-export { AD_STREAMS as AdStreams };
-export default AdService;
+export { AD_STREAMS as AdStreams }
+export default AdService

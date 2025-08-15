@@ -24,699 +24,200 @@ WHETHER IN  AN  ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE,  ARISING  FROM,  OUT
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Canned Grid layout schemas >
-const CANNED_2x2 = [
-	{
-		rootVideoNode: {
-			nodes: [
-				{
-					red: 0,
-					green: 0,
-					blue: 0,
-					alpha: 1,
-					node: "SolidColorNode",
-				},
-				{
-					streamGuid: "live/stream1",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 0,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
-				},
-				{
-					streamGuid: "live/stream2",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 0,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
-				},
-				{
-					streamGuid: "live/stream3",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 540,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
-				},
-				{
-					streamGuid: "live/stream4",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 540,
-					destWidth: 960,
-					destHeight: 540,
-					node: "VideoSourceNode",
-				},
-			],
-			node: "CompositorNode",
-		},
-		rootAudioNode: {
-			nodes: [
-				{
-					streamGuid: "live/stream1",
-					pan: 0,
-					gain: -6,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream2",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream3",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream4",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-			],
-			node: "SumNode",
-		},
-	},
-];
+const SOURCE_WIDTH = 1920
+const SOURCE_HEIGHT = 1080
+const NodeTypes = {
+  VideoNode: 'VideoSourceNode',
+  AudioNode: 'AudioSourceNode'
+}
 
-const CANNED_3x3 = [
-	{
-		rootVideoNode: {
-			nodes: [
-				{
-					red: 0,
-					green: 0,
-					blue: 0,
-					alpha: 1,
-					node: "SolidColorNode",
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream1",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 0,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream2",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 640,
-					destY: 0,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream3",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1280,
-					destY: 0,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream4",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 360,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream5",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 640,
-					destY: 360,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream6",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1280,
-					destY: 360,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream7",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 720,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream8",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 640,
-					destY: 720,
-					destWidth: 640,
-					destHeight: 360,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream9",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1280,
-					destY: 720,
-					destWidth: 640,
-					destHeight: 360,
-				},
-			],
-			node: "CompositorNode",
-		},
-		rootAudioNode: {
-			nodes: [
-				{
-					streamGuid: "live/stream1",
-					pan: 0,
-					gain: -6,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream2",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream3",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream4",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream5",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream6",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream7",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream8",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream9",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-			],
-			node: "SumNode",
-		},
-	},
-];
+const ROOT_VIDEO_NODE = {
+  nodes: [
+    {
+      red: 0,
+      green: 0,
+      blue: 0,
+      alpha: 1,
+      node: 'SolidColorNode'
+    }
+  ],
+  node: 'CompositorNode'
+}
 
-const CANNED_4x4 = [
-	{
-		rootVideoNode: {
-			nodes: [
-				{
-					red: 0,
-					green: 0,
-					blue: 0,
-					alpha: 1,
-					node: "SolidColorNode",
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream1",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 0,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream2",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 480,
-					destY: 0,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream3",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 0,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream4",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1440,
-					destY: 0,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream5",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 270,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream6",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 480,
-					destY: 270,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream7",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 270,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream8",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1440,
-					destY: 270,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream9",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 540,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream10",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 480,
-					destY: 540,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream11",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 540,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream12",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1440,
-					destY: 540,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream13",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 0,
-					destY: 810,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream14",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 480,
-					destY: 810,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream15",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 960,
-					destY: 810,
-					destWidth: 480,
-					destHeight: 270,
-				},
-				{
-					node: "VideoSourceNode",
-					streamGuid: "live/stream16",
-					sourceX: 0,
-					sourceY: 0,
-					sourceWidth: 1920,
-					sourceHeight: 1080,
-					destX: 1440,
-					destY: 810,
-					destWidth: 480,
-					destHeight: 270,
-				},
-			],
-			node: "CompositorNode",
-		},
-		rootAudioNode: {
-			nodes: [
-				{
-					streamGuid: "live/stream1",
-					pan: 0,
-					gain: -6,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream2",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream3",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream4",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream5",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream6",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream7",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream8",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream9",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream10",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream11",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream12",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream13",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream14",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream15",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-				{
-					streamGuid: "live/stream16",
-					pan: 0,
-					gain: -100,
-					node: "AudioSourceNode",
-				},
-			],
-			node: "SumNode",
-		},
-	},
-];
+const ROOT_AUDIO_NODE = {
+  nodes: [],
+  node: 'SumNode'
+}
 
-// > Canned Grid layout schemas.
+const getResolution = columns => {
+  const width = SOURCE_WIDTH / columns
+  const height = (width * 9) / 16
+  return { width, height }
+}
+
+const generateManifestFromColumns = (manifest, columns, rows) => {
+  const { width, height } = getResolution(columns)
+  const { rootVideoNode, rootAudioNode } = manifest
+  const { nodes } = rootVideoNode
+  const videoNodes = nodes.filter(node => node.node === NodeTypes.VideoNode)
+  const updatedVideoNodes = videoNodes.map((node, index) => {
+    const muted = index > columns * rows - 1
+    const x = index % columns
+    const y = Math.floor(index / columns)
+    return {
+      ...node,
+      destX: muted ? 0 : x * width,
+      destY: muted ? 0 : y * height,
+      destWidth: muted ? 0 : width,
+      destHeight: muted ? 0 : height
+    }
+  })
+  const updatedRootVideoNode = {
+    ...ROOT_VIDEO_NODE,
+    // Clear.
+    nodes: [
+      {
+        red: 0,
+        green: 0,
+        blue: 0,
+        alpha: 1,
+        node: 'SolidColorNode'
+      },
+      ...updatedVideoNodes
+    ]
+  }
+  return { rootVideoNode: updatedRootVideoNode, rootAudioNode }
+}
 
 /**
  * MixerService is responisible for integrating with the BrewMixer API.
  */
 class MixerService {
-	endpoint = null;
+  endpoint = null
+  authentication = null
+  jwt = null
+  manifest = null
 
-	/**
-	 * Constructor.
-	 * @param {string} endpoint
-	 */
-	constructor(endpoint) {
-		this.endpoint = endpoint;
-	}
+  /**
+   * Constructor.
+   * @param {string} endpoint
+   */
+  constructor(endpoint, authentication = null) {
+    this.endpoint = endpoint
+    this.authentication = authentication
+  }
 
-	/**
-	 * Constructs a video listing from the response of service.
-	 * @param {[object]} responseData
-	 * @returns [object]
-	 */
-	responseDataToVideoListing(responseData) {
-		const videoRoot = responseData.filter((type) => type.rootVideoNode);
-		const videoNodes = videoRoot ? videoRoot[0].rootVideoNode : null;
-		const videos =
-			videoNodes && videoNodes.nodes
-				? videoNodes.nodes.filter((node) => node.node === "VideoSourceNode")
-				: [];
-		return videos;
-	}
+  /**
+   * Constructs a video listing from the response of service.
+   * @param {[object]} responseData
+   * @returns [object]
+   */
+  responseDataToVideoListing(responseData) {
+    const videoRoot = responseData.filter(type => type.rootVideoNode)
+    const videoNodes = videoRoot ? videoRoot[0].rootVideoNode : null
+    const videos =
+      videoNodes && videoNodes.nodes
+        ? videoNodes.nodes.filter(node => node.node === 'VideoSourceNode')
+        : []
+    return videos
+  }
 
-	/**
-	 * Request to update the grid layout of the mixed stream and return list of videos in grid.
-	 * @param {number} columns
-	 * @returns [object]
-	 */
-	async updateGrid(columns) {
-		let eventJSON = null;
-		try {
-			let grid = CANNED_2x2;
-			switch ("" + columns) {
-				case "3":
-					grid = CANNED_3x3;
-					break;
-				case "4":
-					grid = CANNED_4x4;
-					break;
-				default:
-					grid = CANNED_2x2;
-					break;
-			}
-			const eventResponse = await fetch(this.endpoint, {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ rootNodes: grid }),
-			});
-			if (eventResponse.status === 200) {
-				eventJSON = grid;
-			} else {
-				console.error(`Failed to update grid: ${eventURL}`);
-				throw new Error("Failed update grid.");
-			}
-		} catch (error) {
-			console.error(error);
-			alert("Failed to update grid.");
-			// throw error;
-		}
-		if (eventJSON) {
-			return this.responseDataToVideoListing(eventJSON);
-		}
-		return [];
-	}
+  async authenticate() {
+    const { endpoint, username, password } = this.authentication
+    const token = 'Basic ' + btoa(username + ':' + password)
+    const response = await fetch(endpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token
+      }
+    })
+    const result = await response.json()
+    this.jwt = result.token
+    return this.jwt
+  }
 
-	/**
-	 * Request to get the data related to the event.
-	 * @returns [object]
-	 */
-	async getEvent() {
-		let eventJSON = null;
-		try {
-			const eventResponse = await fetch(this.endpoint, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			if (eventResponse.status === 200) {
-				eventJSON = await eventResponse.json();
-			} else {
-				console.error(`Failed to fetch event at: ${eventURL}`);
-				throw new Error("Failed to fetch event.");
-			}
-		} catch (error) {
-			console.error(error);
-			// throw new Error(`Failed to load events: ${error.message}.`);
-		}
+  /**
+   * Request to update the grid layout of the mixed stream and return list of videos in grid.
+   * @param {number} columns
+   * @returns [object]
+   */
+  async updateGrid(columns) {
+    let eventJSON = null
+    try {
+      const count = parseInt(columns, 10)
+      let grid = generateManifestFromColumns(this.manifest, count, count)
+      let token = this.jwt
+      let headers = {
+        'Content-Type': 'application/json'
+      }
+      if (this.authentication && !token) {
+        token = await this.authenticate()
+      }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      const eventResponse = await fetch(this.endpoint, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify([grid])
+      })
+      if (eventResponse.status === 200) {
+        eventJSON = [grid]
+        this.manifest = grid
+      } else {
+        console.error(`Failed to update grid: ${eventURL}`)
+        throw new Error('Failed update grid.')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Failed to update grid.')
+      // throw error;
+    }
+    if (eventJSON) {
+      return this.responseDataToVideoListing(eventJSON)
+    }
+    return []
+  }
 
-		if (eventJSON) {
-			return this.responseDataToVideoListing(eventJSON);
-		}
-		return [];
-	}
+  /**
+   * Request to get the data related to the event.
+   * @returns [object]
+   */
+  async getEvent() {
+    let eventJSON = null
+    try {
+      let token = this.jwt
+      let headers = {
+        'Content-Type': 'application/json'
+      }
+      if (this.authentication && !token) {
+        token = await this.authenticate()
+      }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      const eventResponse = await fetch(this.endpoint, {
+        method: 'GET',
+        headers
+      })
+      if (eventResponse.status === 200) {
+        eventJSON = await eventResponse.json()
+      } else {
+        console.error(`Failed to fetch event at: ${this.endpoint}`)
+        throw new Error('Failed to fetch event.')
+      }
+    } catch (error) {
+      console.error(error)
+      // throw new Error(`Failed to load events: ${error.message}.`);
+    }
+
+    if (eventJSON) {
+      this.manifest = eventJSON.length > 0 ? eventJSON[0] : eventJSON
+      return this.responseDataToVideoListing(eventJSON)
+    }
+    return []
+  }
 }
 
-export default MixerService;
+export default MixerService
