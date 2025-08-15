@@ -56,7 +56,7 @@ const resumePayload = {
 
 class InterstitialService {
   insertId = 0
-  url = 'https://api.red5pro.com'
+  url = 'https://api.red5.net'
   app = 'live'
   streamName = 'streamName'
   interstitialGuid = 'live/streamName'

@@ -13,7 +13,7 @@ persons to whom the Software is furnished to do so, subject to the following con
 
 The Software shall be used solely in conjunction with Red5 Pro. Red5 Pro is licensed under a separate end
 user  license  agreement  (the  "EULA"),  which  must  be  executed  with  Infrared5,  Inc.
-An  example  of  the EULA can be found on our website at: https://account.red5pro.com/assets/LICENSE.txt.
+An  example  of  the EULA can be found on our website at: https://account.red5.net/assets/LICENSE.txt.
 
 The above copyright notice and this license shall be included in all copies or portions of the Software.
 
@@ -40,53 +40,53 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @returns
  */
 const getCoordinates = (
-	viewWidth,
-	viewHeight,
-	clientWidth,
-	clientHeight,
-	objectFit,
+  viewWidth,
+  viewHeight,
+  clientWidth,
+  clientHeight,
+  objectFit
 ) => {
-	const viewRatio = viewWidth / viewHeight;
-	const clientRatio = clientWidth / clientHeight;
-	let dw,
-		dh = 1;
-	let x,
-		y,
-		width,
-		height = 0;
-	// Determine the dimensional percentages of the video element to the video itself.
-	// Then, based on the `object-fit` style, determine the actualized bounding box coordinates.
-	if (objectFit === "contain") {
-		if (viewRatio > clientRatio) {
-			dw = 1;
-			dh = viewHeight / clientHeight / (viewWidth / clientWidth);
-		} else {
-			dw = viewWidth / clientWidth / (viewHeight / clientHeight);
-			dh = 1;
-		}
-		x = clientWidth * (1 - dw) * 0.5;
-		y = clientHeight * (1 - dh) * 0.5;
-	} else if (objectFit === "cover") {
-		if (viewRatio > clientRatio) {
-			dw = viewWidth / clientWidth / (viewHeight / clientHeight);
-			dh = 1;
-		} else {
-			dw = 1;
-			dh = viewHeight / clientHeight / (viewWidth / clientWidth);
-		}
+  const viewRatio = viewWidth / viewHeight
+  const clientRatio = clientWidth / clientHeight
+  let dw,
+    dh = 1
+  let x,
+    y,
+    width,
+    height = 0
+  // Determine the dimensional percentages of the video element to the video itself.
+  // Then, based on the `object-fit` style, determine the actualized bounding box coordinates.
+  if (objectFit === 'contain') {
+    if (viewRatio > clientRatio) {
+      dw = 1
+      dh = viewHeight / clientHeight / (viewWidth / clientWidth)
+    } else {
+      dw = viewWidth / clientWidth / (viewHeight / clientHeight)
+      dh = 1
+    }
+    x = clientWidth * (1 - dw) * 0.5
+    y = clientHeight * (1 - dh) * 0.5
+  } else if (objectFit === 'cover') {
+    if (viewRatio > clientRatio) {
+      dw = viewWidth / clientWidth / (viewHeight / clientHeight)
+      dh = 1
+    } else {
+      dw = 1
+      dh = viewHeight / clientHeight / (viewWidth / clientWidth)
+    }
 
-		x = (clientWidth - clientWidth * dw) * 0.5;
-		y = (clientHeight - clientHeight * dh) * 0.5;
-	} else {
-		dw = viewWidth / clientWidth;
-		dh = viewHeight / clientHeight;
-		x = (clientWidth - clientWidth * dw) * 0.5;
-		y = (clientHeight - clientHeight * dh) * 0.5;
-	}
-	width = clientWidth * dw;
-	height = clientHeight * dh;
-	// Return the coordinates.
-	return { x, y, width, height };
-};
+    x = (clientWidth - clientWidth * dw) * 0.5
+    y = (clientHeight - clientHeight * dh) * 0.5
+  } else {
+    dw = viewWidth / clientWidth
+    dh = viewHeight / clientHeight
+    x = (clientWidth - clientWidth * dw) * 0.5
+    y = (clientHeight - clientHeight * dh) * 0.5
+  }
+  width = clientWidth * dw
+  height = clientHeight * dh
+  // Return the coordinates.
+  return { x, y, width, height }
+}
 
-export { getCoordinates };
+export { getCoordinates }
