@@ -87,6 +87,7 @@ const getProxyWhepEndpoint = (endpoint, app, streamName) => {
 let serviceEndpoint = `http${isSecureHost ? 's' : ''}://${baseConfiguration.host}:${baseConfiguration.port}`
 let mixerEndpoint = `http${isMixerSecureHost ? 's' : ''}://${mixerConfiguration.host}:${mixerConfiguration.port}/brewmixer/1.0/${mixerConfiguration.eventName}`
 let interstitialEndpoint = `${serviceEndpoint}/${baseConfiguration.app}/interstitial`
+let clipsEndpoint = `${serviceEndpoint}/${app}/clips.jsp`
 let authentication = null
 
 // Services
@@ -241,9 +242,10 @@ const setUpServices = async () => {
     const origin = result.find(n => n.nodeRole.toLowerCase() === 'origin')
     const { serverAddress } = origin
     interstitialEndpoint = `${serviceEndpoint}/as/v1/proxy/forward/?target=http%3A%2F%2F${serverAddress}%3A5080%2F${app}%2Finterstitial`
+    clipsEndpoint = `${serviceEndpoint}/as/v1/proxy/forward/?target=http%3A%2F%2F${serverAddress}%3A5080%2F${app}%2Fclips.jsp`
   }
   service = new InterstitialServiceImpl(interstitialEndpoint, app, streamName)
-  clipsService = new ClipsServiceImpl(serviceEndpoint, app, AdStreams)
+  clipsService = new ClipsServiceImpl(clipsEndpoint, app, AdStreams)
   mixerService = new MixerServiceImpl(mixerEndpoint, authentication)
   adService = new AdServiceImpl(serviceEndpoint, app)
 }

@@ -32,69 +32,77 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * NOTE: Requires simple `clips.jsp` file in the webapp directory of the Red5 Pro server.
  */
 class ClipsService {
-	endpoint = null;
-	app = null;
-	url = null;
-	excludes = [];
-	delegate = null;
+  endpoint = null
+  app = null
+  url = null
+  excludes = []
+  delegate = null
 
-	index = 0;
+  index = 0
 
-	/**
-	 * Constructor.
-	 * @param {string} endpoint Service base endpoint including protocol and port.
-	 * @param {string} app Webapp scope name (e.g., `live`)
-	 * @param {[object]} excludes A list of objects to exclude from the clips list. (For example, any Ad files.)
-	 */
-	constructor(endpoint, app, excludes = []) {
-		this.endpoint = endpoint;
-		this.app = app;
-		this.excludes = excludes;
-		this.url = `${endpoint}/${app}/clips.jsp`;
-	}
+  /**
+   * Constructor.
+   * @param {string} endpoint Service base endpoint including protocol and port.
+   * @param {string} app Webapp scope name (e.g., `live`)
+   * @param {[object]} excludes A list of objects to exclude from the clips list. (For example, any Ad files.)
+   */
+  constructor(endpoint, app, excludes = []) {
+    this.endpoint = endpoint
+    this.app = app
+    this.excludes = excludes
+    this.url = endpoint
+  }
 
-	/**
-	 * Constructs the URL for a given clip filename (with extension).
-	 * @param {string} filename
-	 * @returns string
-	 */
-	getClipUrl(filename) {
-		return `${this.endpoint}/${this.app}/streams/${filename}`;
-	}
+  /**
+   * Constructs the URL for a given clip filename (with extension).
+   * @param {string} filename
+   * @returns string
+   */
+  getClipUrl(filename) {
+    let strippedEndpoint = this.endpoint
+    if (this.endpoint.includes('%2Flive%2Fclips.jsp')) {
+      strippedEndpoint = this.endpoint.replace('%2Flive%2Fclips.jsp', '')
+      return `${strippedEndpoint}${encodeURIComponent(`/${this.app}/streams/${filename}`)}`
+    } else if (this.endpoint.includes('/live/clips.jsp')) {
+      strippedEndpoint = this.endpoint.replace('/live/clips.jsp', '')
+      return `${strippedEndpoint}/${this.app}/streams/${filename}`
+    }
+    return `${this.endpoint}/${this.app}/streams/${filename}`
+  }
 
-	/**
-	 * Request to get the latest list of clips available on the server.
-	 * @returns {Promise<[object]>} List of clips available on the server.
-	 */
-	async getClips() {
-		let list = [];
-		try {
-			const response = await fetch(this.url);
-			const json = await response.json();
-			// Logic to pair MP4 and FLV files that share same filename.
-			json.forEach((entry) => {
-				if (entry.endsWith(".mp4")) {
-					const filename = entry.substr(0, entry.lastIndexOf(".mp4"));
-					const exclusion = this.excludes.find(
-						(exclude) => exclude.name === filename,
-					);
-					if (!exclusion && json.indexOf(`${filename}.flv`) !== -1) {
-						const url = this.getClipUrl(entry);
-						const streamGuid = `${this.app}/${entry.replace(".mp4", ".flv")}`;
-						list.push({
-							name: filename,
-							filename: entry,
-							streamGuid,
-							url,
-						});
-					}
-				}
-			});
-		} catch (error) {
-			console.error(error);
-		}
-		return list;
-	}
+  /**
+   * Request to get the latest list of clips available on the server.
+   * @returns {Promise<[object]>} List of clips available on the server.
+   */
+  async getClips() {
+    let list = []
+    try {
+      const response = await fetch(this.url)
+      const json = await response.json()
+      // Logic to pair MP4 and FLV files that share same filename.
+      json.forEach(entry => {
+        if (entry.endsWith('.mp4')) {
+          const filename = entry.substr(0, entry.lastIndexOf('.mp4'))
+          const exclusion = this.excludes.find(
+            exclude => exclude.name === filename
+          )
+          if (!exclusion && json.indexOf(`${filename}.flv`) !== -1) {
+            const url = this.getClipUrl(entry)
+            const streamGuid = `${this.app}/${entry.replace('.mp4', '.flv')}`
+            list.push({
+              name: filename,
+              filename: entry,
+              streamGuid,
+              url
+            })
+          }
+        }
+      })
+    } catch (error) {
+      console.error(error)
+    }
+    return list
+  }
 }
 
-export default ClipsService;
+export default ClipsService

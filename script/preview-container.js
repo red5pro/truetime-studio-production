@@ -102,7 +102,7 @@ class PreviewContainer {
         const location = streamGuid.split('/')
         const streamName = location.pop()
         const app = location.join('/')
-        this.preview(app, streamName, isLive)
+        this.preview(app, streamName, json.url, isLive)
       })
     })
   }
@@ -150,10 +150,11 @@ class PreviewContainer {
    * Add a preview of a stream to the container.
    * @param {string} app The webapp scope.
    * @param {string} streamOrFileName The stream name or file name.
+   * @param {string} url Optional URL to override the default stream name.
    * @param {boolean} isLive Flag of stream being live.
    * @returns {boolean} Flag of completion.
    */
-  async preview(app, streamOrFileName, isLive) {
+  async preview(app, streamOrFileName, url = null, isLive = true) {
     this.goLiveButton.disabled = true
     let complete = false
     this.clipDurationMS = null
@@ -167,7 +168,7 @@ class PreviewContainer {
     } else {
       this.goLiveButton.innerText = 'Play Clip'
       await this.unpreviewLive()
-      complete = await this.updateClipPreview(app, streamOrFileName)
+      complete = await this.updateClipPreview(app, streamOrFileName, url)
       this.goLiveButton.disabled = false
     }
     this.previewState = {
@@ -287,14 +288,16 @@ class PreviewContainer {
    * Updates the current clip stream preview with the provided stream filename.
    * @param {string} app The webapp scope.
    * @param {string} streamFilename The name of the clip stream.
+   * @param {string} [url] Optional URL to override the default streamname.
    */
-  async updateClipPreview(app, streamFilename) {
+  async updateClipPreview(app, streamFilename, url = null) {
     const isHLS = streamFilename.includes('.m3u8')
     const isFLV = streamFilename.includes('.flv')
     const { host, protocol, port } = this.clipConfiguration
     const proto = protocol === 'ws' ? 'http' : 'https'
     const location = app.includes('/streams') ? app : `${app}/streams`
-    const src = `${proto}://${host}:${port}/${location}/${streamFilename}`
+    const src =
+      url || `${proto}://${host}:${port}/${location}/${streamFilename}`
     if (isHLS && Hls) {
       const hls = new Hls({ debug: true, backBufferLength: 0 })
       hls.attachMedia(this.previewVideoClipElement)

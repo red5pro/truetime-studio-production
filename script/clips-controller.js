@@ -91,9 +91,9 @@ class ClipsController {
   createVideoElementFromClip(clip) {
     const { filename, streamGuid, url } = clip
     const video = document.createElement('video')
-    video.src = `${url}#t=1`
+    video.src = `${url}#t=1,3`
     video.type = 'video/mp4'
-    video.preload = 'metadata'
+    video.preload = 'auto'
     video.draggable = true
     video.dataset.name = filename
     video.dataset.streamGuid = streamGuid
