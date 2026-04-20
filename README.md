@@ -6,7 +6,7 @@
 
 ![Red5 TrueTime Studio™ for Production](docs/splash.png)
 
-The Red5 TrueTime Studio™ for Production is a web-based application for broadcasting content providers that provides an interface to preview multiple live streams delivered in a single stream from the [Red5 TrueTime Multiview for Production](https://github.com/red5pro/truetime-production) technology to deliver Interstitial streams to multiple end-users with sub-400ms latency.
+The [Red5 TrueTime Studio™](https://www.red5.net/truetime/studio/) for Production is a web-based application for broadcasting content providers that provides an interface to preview multiple live streams delivered in a single stream from the [Red5 TrueTime Multiview for Production](https://github.com/red5pro/truetime-production) technology to deliver Interstitial streams to multiple end-users with sub-400ms latency.
 
 Along with being able to select a single live stream to deliver from several concurrent live streams, the web-based application allows for pre-recorded Clip and Ad insertion during a live stream. Once either a Clip or Ad has finished, the stream will return to the previously selected live stream.
 
