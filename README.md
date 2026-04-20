@@ -6,7 +6,7 @@
 
 ![Red5 TrueTime Studio™ for Production](docs/splash.png)
 
-The [Red5 TrueTime Studio™](https://www.red5.net/truetime/studio/) for Production is a web-based application for broadcasting content providers that provides an interface to preview multiple live streams delivered in a single stream from the [Red5 TrueTime Multiview for Production](https://github.com/red5pro/truetime-production) technology to deliver Interstitial streams to multiple end-users with sub-400ms latency.
+The [Red5 TrueTime Studio™](https://www.red5.net/truetime/studio/) for Production is a web-based application for broadcasting content providers that provides an interface to preview multiple live streams delivered in a single stream from the [Red5 TrueTime Multiview for Production](https://github.com/red5pro/truetime-production) technology to deliver Interstitial streams to multiple end-users with sub-250ms latency.
 
 Along with being able to select a single live stream to deliver from several concurrent live streams, the web-based application allows for pre-recorded Clip and Ad insertion during a live stream. Once either a Clip or Ad has finished, the stream will return to the previously selected live stream.
 
@@ -105,7 +105,7 @@ The [url-util](script/url-util.js) is a utility to access and provide query para
 
 # Usage
 
-When visiting the TrueTime Studio™ for Production web applicatoion - either through launching in `dev` or loaded from a built distribution - there are several optional query params that can be added to the landing URL to configure the app to use your own Red5 Pro Server deployment and playback live streams.
+When visiting the TrueTime Studio™ for Production web application - either through launching in `dev` or loaded from a built distribution - there are several optional query params that can be added to the landing URL to configure the app to use your own [Red5 Pro Server deployment and playback live streams](https://www.red5.net/red5-pro/low-latency-streaming-software/)
 
 Once loaded with the proper configurations you will be able to view a grid of mixed streams to select from, as well as a grid of pre-recorded Clips to select and insert into the interstitial.
 
